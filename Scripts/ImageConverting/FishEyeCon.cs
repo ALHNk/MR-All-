@@ -4,7 +4,13 @@ public class FishEyeCon : MonoBehaviour
 {
 	public ComputeShader shader;
 	
-	RenderTexture output;
+    private RenderTexture output;
+	
+	// Awake is called when the script instance is being loaded.
+	protected void Awake()
+	{
+		shader = Instantiate(Resources.Load<ComputeShader>("FishEyeToPerspective"));
+	}
 
 	public Texture2D Convert(Texture2D input, int width = 640, int height = 480)
 	{
