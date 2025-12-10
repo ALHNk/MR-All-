@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GetVideo : MonoBehaviour
 {
@@ -17,14 +18,15 @@ public class GetVideo : MonoBehaviour
     private int framePos = 0;
     private bool foundHeader = false;
 
-    private FishEyeCon fishEyeCon;
+	public FishEyeCon fishEyeCon;
 
     private Queue<byte[]> queue = new Queue<byte[]>();
     private object queueLock = new object();
 
     void Start()
     {
-        fishEyeCon = GetComponentInChildren<FishEyeCon>();
+	    //fishEyeCon = GetComponentInChildren<FishEyeCon>();
+	    //display = Instantiate(display);
 
         udpClient = new UdpClient(port);
         udpClient.Client.ReceiveBufferSize = 5 * 1024 * 1024;
@@ -72,7 +74,6 @@ public class GetVideo : MonoBehaviour
                             foundHeader = false;
                             framePos = 0;
 
-                            // кладём кадр в собственную очередь
                             lock (queueLock)
                             {
                                 queue.Enqueue(jpegData);

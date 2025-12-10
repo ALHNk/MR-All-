@@ -1317,6 +1317,7 @@ MonoBehaviour:
   host: 10.63.119.82
   port: 5000
   display: {fileID: 0}
+  fishEyeCon: {fileID: 0}
 --- !u!114 &96998707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5221,6 +5222,7 @@ MonoBehaviour:
   host: 10.63.119.122
   port: 5000
   display: {fileID: 0}
+  fishEyeCon: {fileID: 0}
 --- !u!114 &376294784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6654,7 +6656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3209508d03a7a1479162ee0de36c59b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 64ee3095a49065f4a8535710dad27869, type: 3}
+  shader: {fileID: 7200000, guid: 60630ec5b4068154aabecad64b903cb3, type: 3}
 --- !u!1 &558309888
 GameObject:
   m_ObjectHideFlags: 0
@@ -11894,6 +11896,7 @@ MonoBehaviour:
   host: 192.168.0.2
   port: 5001
   display: {fileID: 2100000, guid: abf055d74ea746d40824b4b79a1c33be, type: 2}
+  fishEyeCon: {fileID: 547136476}
 --- !u!4 &942699964 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 30568dcaadebbe644ada0b6f7bb5503e, type: 3}
@@ -16037,6 +16040,7 @@ MonoBehaviour:
   host: 192.168.0.2
   port: 5000
   display: {fileID: 2100000, guid: abf055d74ea746d40824b4b79a1c33be, type: 2}
+  fishEyeCon: {fileID: 1193274033}
 --- !u!4 &1268842072 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 30568dcaadebbe644ada0b6f7bb5503e, type: 3}
