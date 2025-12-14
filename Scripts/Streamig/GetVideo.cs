@@ -4,7 +4,9 @@ using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine.UI;
+using System.IO;
 
 public class GetVideo : MonoBehaviour
 {
@@ -86,6 +88,7 @@ public class GetVideo : MonoBehaviour
 			ApplyFrame(frame);
 		}
 	}
+	
     
 	void ReceiveLoop()
 	{
@@ -137,7 +140,10 @@ public class GetVideo : MonoBehaviour
 							lock (queueLock)
 							{
 								if (queue.Count > 3)
+								{
 									queue.Clear();
+								}
+								//StartCoroutine(SaveBytes(jpegData));
 								queue.Enqueue(jpegData);
 							}
 						}
@@ -149,7 +155,7 @@ public class GetVideo : MonoBehaviour
 			{
 				if (isConnected)
 				{
-					Debug.LogError($"{gameObject.name} UDP Receive Error: {e.Message}");
+					//Debug.LogError($"{gameObject.name} UDP Receive Error: {e.Message}");
 				}
 			}
 	}
@@ -183,6 +189,26 @@ public class GetVideo : MonoBehaviour
 			Debug.LogWarning($"{gameObject.name}: Bad JPEG frame");
 		}
 	}
+	
+	//for testing only
+	public IEnumerator SaveBytes(byte[] data)
+	{
+
+		var filePath = Path.Combine(Application.persistentDataPath, "MyBinaryFile.bin");
+
+		try
+		{
+			File.WriteAllBytes(filePath, data);
+			Debug.LogWarning($"File saved to: {filePath}");
+		}
+			catch (Exception e)
+			{
+				Debug.LogError($"Something went wrong while writing a file: {e}");
+			}
+		yield return null;
+
+	}
+	//
     
 	void OnDestroy()
 	{

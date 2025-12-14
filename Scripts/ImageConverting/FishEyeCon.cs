@@ -8,7 +8,6 @@ public class FishEyeCon : MonoBehaviour
     
 	void Awake()
 	{
-		// Load shader from Resources - each instance shares the shader but has its own RenderTexture
 		ComputeShader shaderTemplate = Resources.Load<ComputeShader>("FishEyeToPerspective");
 		if (shaderTemplate == null)
 		{
@@ -27,7 +26,6 @@ public class FishEyeCon : MonoBehaviour
 			return existingOutput;
 		}
         
-		// Create or recreate RenderTexture if needed
 		if (output == null || output.width != width || output.height != height)
 		{
 			if (output != null)
@@ -42,19 +40,16 @@ public class FishEyeCon : MonoBehaviour
 			output.Create();
 		}
         
-		// Set shader parameters
 		shader.SetTexture(kernel, "Source", input);
 		shader.SetTexture(kernel, "Result", output);
 		shader.SetVector("sourceSize", new Vector2(input.width, input.height));
 		shader.SetVector("resultSize", new Vector2(width, height));
 		shader.SetFloat("radius", Mathf.Min(input.width, input.height) * 0.5f);
         
-		// Dispatch compute shader
 		int threadGroupsX = Mathf.CeilToInt(width / 8.0f);
 		int threadGroupsY = Mathf.CeilToInt(height / 8.0f);
 		shader.Dispatch(kernel, threadGroupsX, threadGroupsY, 1);
         
-		// Reuse existing texture or create new one
 		Texture2D tex = existingOutput;
 		if (tex == null || tex.width != width || tex.height != height)
 		{
@@ -68,7 +63,7 @@ public class FishEyeCon : MonoBehaviour
 		RenderTexture.active = output;
 		tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
 		tex.Apply();
-		RenderTexture.active = previousActive; // CRITICAL: Restore previous state
+		RenderTexture.active = previousActive; 
         
 		return tex;
 	}

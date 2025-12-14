@@ -16,15 +16,28 @@ void FishEyeToPerspective(uint3 id : SV_DispatchThreadID)
     if (id.x >= resultSize.x || id.y >= resultSize.y)
         return;
 
-    float2 uv = id.xy / resultSize;
+    // float2 uv = id.xy / resultSize;
 
-    float nx = (uv.x - 0.5f) * 2.0f;
-    float ny = (uv.y - 0.5f) * 2.0f;
+    // float nx = (uv.x - 0.5f) * 2.0f;
+    // float ny = (uv.y - 0.5f) * 2.0f;
 
-    float r = sqrt(nx * nx + ny * ny);
-    float theta = atan2(ny, nx);
+    // float r = sqrt(nx * nx + ny * ny);
+    // float theta = atan2(ny, nx);
 
-    float fishR = r * radius;
+    // float fishR = r * radius;
+
+    float2 centered = id.xy -resultSize*0.5;
+    float minDim = min(resultSize.x, resultSize.y);
+    
+    float2 norm = centered /minDim *2.0f;
+    
+    float r = length(norm);
+    if(r > 1.0) return;
+
+    float theta = atan2(norm.y, norm.x);
+    float fishR = r*(min(sourceSize.x, sourceSize.y*0.5));
+
+
 
     float fx = 0.5f * sourceSize.x + fishR * cos(theta);
     float fy = 0.5f * sourceSize.y + fishR * sin(theta);
