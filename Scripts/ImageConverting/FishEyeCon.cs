@@ -5,6 +5,13 @@ public class FishEyeCon : MonoBehaviour
 	private ComputeShader shader;
 	private RenderTexture output;
 	private int kernel;
+	
+	[Header("Fisheye Parameters")]
+	[Range(0.5f, 2.5f)]
+	public float strength = 1.5f;  
+	
+	[Range(60f, 180f)]
+	public float fov = 140f;  
     
 	void Awake()
 	{
@@ -18,12 +25,12 @@ public class FishEyeCon : MonoBehaviour
 		kernel = shader.FindKernel("FishEyeToPerspective");
 	}
     
-	public Texture2D Convert(Texture2D input, Texture2D existingOutput = null, int width = 640, int height = 480)
+	public Texture Convert(Texture2D input, int width = 640, int height = 480)
 	{
 		if (shader == null)
 		{
 			Debug.LogError("Shader not initialized!");
-			return existingOutput;
+			return input;
 		}
         
 		if (output == null || output.width != width || output.height != height)
@@ -45,27 +52,14 @@ public class FishEyeCon : MonoBehaviour
 		shader.SetVector("sourceSize", new Vector2(input.width, input.height));
 		shader.SetVector("resultSize", new Vector2(width, height));
 		shader.SetFloat("radius", Mathf.Min(input.width, input.height) * 0.5f);
+		shader.SetFloat("fov", fov * Mathf.Deg2Rad);
+		shader.SetFloat("strength", strength);
         
 		int threadGroupsX = Mathf.CeilToInt(width / 8.0f);
 		int threadGroupsY = Mathf.CeilToInt(height / 8.0f);
 		shader.Dispatch(kernel, threadGroupsX, threadGroupsY, 1);
         
-		Texture2D tex = existingOutput;
-		if (tex == null || tex.width != width || tex.height != height)
-		{
-			if (tex != null)
-				DestroyImmediate(tex);
-			tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-		}
-        
-		// Read pixels from RenderTexture - save and restore active RT to avoid conflicts
-		RenderTexture previousActive = RenderTexture.active;
-		RenderTexture.active = output;
-		tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-		tex.Apply();
-		RenderTexture.active = previousActive; 
-        
-		return tex;
+		return output;
 	}
     
 	void OnDestroy()
@@ -79,25 +73,5 @@ public class FishEyeCon : MonoBehaviour
 		{
 			DestroyImmediate(shader);
 		}
-	}
-    
-	public Texture2D[] SplitInto3(Texture2D source)
-	{
-		int partWidth = source.width / 3;
-		int height = source.height;
-        
-		Texture2D left = new Texture2D(partWidth, height, TextureFormat.RGB24, false);
-		Texture2D mid = new Texture2D(partWidth, height, TextureFormat.RGB24, false);
-		Texture2D right = new Texture2D(partWidth, height, TextureFormat.RGB24, false);
-        
-		left.SetPixels(source.GetPixels(0, 0, partWidth, height));
-		mid.SetPixels(source.GetPixels(partWidth, 0, partWidth, height));
-		right.SetPixels(source.GetPixels(partWidth * 2, 0, partWidth, height));
-        
-		left.Apply();
-		mid.Apply();
-		right.Apply();
-        
-		return new Texture2D[] { left, mid, right };
 	}
 }

@@ -3,7 +3,7 @@
 public class StreamingHolder : MonoBehaviour
 {
 	public Transform player;
-	private Vector3 offset;
+	private Vector3 offset, holderOffset;
 	public float limit = 5f;
 	public float smoothTime = 0.3f; 
 	
@@ -11,6 +11,9 @@ public class StreamingHolder : MonoBehaviour
 	private Vector3 targetPosition;
 	private Vector3 velocity = Vector3.zero;
 	private bool isMoving = false;
+	public bool isLocked = false;
+	
+	public GameObject holderPositionChanger;
 	
 	void Start()
 	{
@@ -19,11 +22,26 @@ public class StreamingHolder : MonoBehaviour
 		lastZ = player.position.z;
 		y = transform.position.y;
 		targetPosition = transform.position;
+		holderPositionChanger.SetActive(false);
+		holderOffset = transform.position - holderPositionChanger.transform.position;
 	}
 	
 	void Update()
 	{
-		// Check if player moved beyond limit
+		if(isLocked)
+		{
+			MotionNotLocked();
+			holderPositionChanger.transform.position = transform.position - holderOffset;
+		}
+		else
+		{
+			MotionLocked();
+		}
+	
+	}
+	
+	private void MotionNotLocked()
+	{
 		if (Mathf.Abs(player.transform.position.x - lastX) > limit || 
 			Mathf.Abs(player.transform.position.z - lastZ) > limit)
 		{
@@ -56,5 +74,9 @@ public class StreamingHolder : MonoBehaviour
 				isMoving = false;
 			}
 		}
+	}
+	private void MotionLocked()
+	{
+		transform.position = holderPositionChanger.transform.position + holderOffset;
 	}
 }

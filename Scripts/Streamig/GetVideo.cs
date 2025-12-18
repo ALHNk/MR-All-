@@ -162,27 +162,29 @@ public class GetVideo : MonoBehaviour
 	void ApplyFrame(byte[] data)
 	{
 		frameCount++;
-        
+    
 		if (inputTexture.LoadImage(data))
 		{
-			if(isConverting)
-			{
-				outputTexture = fishEyeCon.Convert(inputTexture, outputTexture);
-			}
-			else 
-			{
-				outputTexture = inputTexture;
-			}
-            
-			if (materialInstance != null)
-			{
-				materialInstance.SetTexture("_BaseMap", outputTexture);
-			}
-			if(fishEye != null)
-			{
-				fishEye.texture = outputTexture;
-			}
-            
+			//Texture outputTexture;  // Changed from Texture2D
+		
+			//if(isConverting)
+			//{
+			//	outputTexture = fishEyeCon.Convert(inputTexture);  // No second parameter
+			//}
+			//else 
+			//{
+			//	outputTexture = inputTexture;
+			//}
+        
+			//if (materialInstance != null)
+			//{
+			//	materialInstance.SetTexture("_BaseMap", outputTexture);
+			//}
+			//if(fishEye != null)
+			//{
+			//	fishEye.texture = outputTexture;
+			//}
+			outputTexture = inputTexture;
 		}
 		else
 		{
