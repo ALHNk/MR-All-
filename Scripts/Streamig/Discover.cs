@@ -13,10 +13,34 @@ public class Discover : MonoBehaviour
 	
 	private UdpClient discoveryClient;
 	private bool isDiscovering = false;
+	
+	public MotorSending motor;
+	public TCPHeartbeat heart;
     
 	void Start()
 	{
+		//StartCoroutine(DiscoverAndConnect());
+		if(motor == null)
+		{
+			motor = FindObjectOfType<MotorSending>();
+		}
+	}
+	
+	public void DiscoverStart()
+	{
 		StartCoroutine(DiscoverAndConnect());
+	}
+	
+	IEnumerator ConnectMotor()
+	{
+		yield return new WaitForSeconds(0.9f);
+		heart.ConnectToServer();
+	}
+	
+	IEnumerator ConnectTCP()
+	{
+		yield return new WaitForSeconds(0.9f);
+		motor.Connect();
 	}
 	
 	IEnumerator DiscoverAndConnect()
@@ -63,8 +87,12 @@ public class Discover : MonoBehaviour
 					{
 						streamer.host = discoveredHost;
 						streamer.isConnected = true;
+						
 					}
 				}
+				motor.SetDiscoveredIp(discoveredHost);
+				//motor.Connect();
+				heart.SetIP(discoveredHost);
 				
 				success = true;
 			}
@@ -81,7 +109,7 @@ public class Discover : MonoBehaviour
 			{
 				Debug.LogError($"Discover: Failed: {e.Message}");
 			}
-			finally
+		finally
 		{
 			if (discoveryClient != null)
 			{
@@ -89,7 +117,11 @@ public class Discover : MonoBehaviour
 				discoveryClient = null;
 			}
 			isDiscovering = false;
+			StartCoroutine(ConnectTCP());
+			StartCoroutine(ConnectMotor());
 		}
+		
+		
 		
 		// Retry if failed
 		if (!success)

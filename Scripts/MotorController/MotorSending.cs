@@ -27,6 +27,10 @@ public class MotorSending : MonoBehaviour
 	public MoveMotor moveMotor1, moveMotor2;
 	
 	private string staticIP = "10.39.129.122";
+	public string discoveredIp = "";
+	
+	private bool isTorqueOn = false;
+	public TMP_Text torqueText;
 	
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -51,7 +55,9 @@ public class MotorSending : MonoBehaviour
 	    //Debug.LogError("angleY: " + angle1);
 	    if(prevAngle != angle1 && isConnected)
 	    {
-	    	SendValues(angle1, "angle", motor);
+	    	//SendValues(angle1, "angle", motor);
+	    	float sendingAngle = angle1-45f;
+	    	SendValues(sendingAngle, "san", motor);
 	    	prevAngle = angle1;
 	    }
 	    
@@ -64,6 +70,11 @@ public class MotorSending : MonoBehaviour
     
     }
     
+	public void SetDiscoveredIp(string ip)
+	{
+		discoveredIp = ip;
+	}
+    
 	public void Connect()
 	{
 		StartCoroutine(ConnectTo());
@@ -75,8 +86,13 @@ public class MotorSending : MonoBehaviour
 		{
 			yield break;
 		}
+		
 		string ip = "";
-		if(ipField.text == "") 
+		if(discoveredIp != "")
+		{
+			ip = discoveredIp;
+		}
+		else if(ipField.text == "") 
 		{
 			ip = staticIP;
 		}
@@ -106,8 +122,8 @@ public class MotorSending : MonoBehaviour
 				float m2Low = motorStatus.motor2limitlow;
 				float m2Up = motorStatus.motor2limitup;
 				
-				moveMotor1.StartMotorPosition(m1Pos, m1Low, m1Up);
-				moveMotor2.StartMotorPosition(m2Pos, m2Low, m2Up);
+				//moveMotor1.StartMotorPosition(m1Pos, m1Low, m1Up);
+				//moveMotor2.StartMotorPosition(m2Pos, m2Low, m2Up);
 				isConnected = true;
 				
 			}
@@ -132,6 +148,7 @@ public class MotorSending : MonoBehaviour
 		}
 		yield return null;
 	}
+	
     
 	public string TakeSecret()
 	{
@@ -139,7 +156,7 @@ public class MotorSending : MonoBehaviour
 		byte[] data = Encoding.ASCII.GetBytes(SECRET);
 		stream.Write(data,0,data.Length);
 		byte[] buffer = new byte[1024];
-		int byteRead = stream.Read(buffer,0,buffer.Length) ;
+		int byteRead = stream.Read(buffer,0,buffer.Length);
 		string secret = Encoding.ASCII.GetString(buffer, 0, byteRead);
 		
 		return secret;
@@ -198,6 +215,31 @@ public class MotorSending : MonoBehaviour
 		byte[] data = Encoding.ASCII.GetBytes(msg);
 		stream.Write(data,0,data.Length);
 		
+	}
+	
+	public void TorqueSwitch()
+	{
+		if(!isTorqueOn)
+		{
+			SendValues(1, "torque");
+		}
+		else
+		{
+			SendValues(0, "torque");
+		}
+		byte[] buffer = new byte[256];
+		int byteRead = stream.Read(buffer,0,buffer.Length);
+		string torqueStatus = Encoding.ASCII.GetString(buffer, 0, byteRead);
+		if(torqueStatus.Equals("on\n"))
+		{
+			isTorqueOn = true;
+			torqueText.text = "Torque off";
+		}
+		else if(torqueStatus.Equals("off\n"))
+		{
+			isTorqueOn = false;
+			torqueText.text = "Torque on";
+		}
 	}
 	
 	// Sent to all game objects before the application is quit.

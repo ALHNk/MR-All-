@@ -44,7 +44,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 	{
 		float currentAngle = lever.eulerAngles.z;
 		if(currentAngle >180f) currentAngle -= 360f;
-		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (2.5f/coef) && currentAngle >(-2.5f/coef)))
+		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (1.0f/coef) && currentAngle >(-1.0f/coef)))
 		{
 			Vector3 newEuler = lever.localEulerAngles;
 			newEuler.z = 0f;
@@ -150,7 +150,15 @@ public class TimeManagedLeverControl : MonoBehaviour
 		previousHandPos = currentHandPos;
 		
 	}
-
+	public float GetMaxAllowedHandSpeed()
+	{
+		return maxAllowedHandSpeed;
+	}
+	
+	public void SetMaxAllowedHandSpeed(float inputSense)
+	{
+		maxAllowedHandSpeed = inputSense;
+	}
 	
 	protected void OnTriggerExit(Collider other)
 	{

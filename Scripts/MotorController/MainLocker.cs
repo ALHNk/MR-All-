@@ -21,13 +21,14 @@ public class MainLocker : MonoBehaviour
 		if(isLocked)
 		{
 			isLocked = false;
-			sender.SendValues(0, "lock", secret);
+			//sender.SendValues(0, "lock", secret);
+			sender.SendValues(0, "lock");
 		}
 		else
 		{
 			isLocked = true;
 			sender.SendValues(1, "lock");
-			secret = sender.TakeSecret();
+			//secret = sender.TakeSecret();
 		}
 	}
     

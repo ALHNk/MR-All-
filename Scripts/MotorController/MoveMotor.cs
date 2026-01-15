@@ -15,7 +15,7 @@ public class MoveMotor : MonoBehaviour
 	private bool fingerLeft1, fingerLeft2, fingerLeft3;
 	
 	private GrabFreeTransformer gft;
-	private float lowLimiti = 0, highLimiti = 360;
+	public float lowLimiti = 0, highLimiti = 360;
 	
     void Start()
 	{
@@ -90,6 +90,7 @@ public class MoveMotor : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
+		transform.rotation = Quaternion.Euler(0, 45f, 0);
 	}
 	
 	public void StartMotorPosition(float positionNow, float positionLow, float positionUp)

@@ -15,6 +15,9 @@ public class StreamingHolder : MonoBehaviour
 	
 	public GameObject holderPositionChanger;
 	
+	private Vector3 initialChangerScale;
+	private Vector3 initialHolderScale;
+	
 	void Start()
 	{
 		offset = transform.position - player.transform.position;
@@ -24,6 +27,9 @@ public class StreamingHolder : MonoBehaviour
 		targetPosition = transform.position;
 		holderPositionChanger.SetActive(false);
 		holderOffset = transform.position - holderPositionChanger.transform.position;
+		
+		initialHolderScale = transform.localScale;
+		initialChangerScale = holderPositionChanger.transform.localScale;
 	}
 	
 	void Update()
@@ -75,8 +81,22 @@ public class StreamingHolder : MonoBehaviour
 			}
 		}
 	}
+	
+	private void ApplyRelativeScale()
+	{
+		Vector3 changerScale = holderPositionChanger.transform.localScale;
+
+		Vector3 scaleMultiplier = new Vector3(
+			changerScale.x / initialChangerScale.x,
+			changerScale.y / initialChangerScale.y,
+			changerScale.z / initialChangerScale.z
+		);
+
+		transform.localScale = Vector3.Scale(initialHolderScale, scaleMultiplier);
+	}
 	private void MotionLocked()
 	{
 		transform.position = holderPositionChanger.transform.position + holderOffset;
+		ApplyRelativeScale();
 	}
 }
