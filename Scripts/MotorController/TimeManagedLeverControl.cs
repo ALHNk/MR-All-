@@ -33,6 +33,9 @@ public class TimeManagedLeverControl : MonoBehaviour
 	public HandGrabInteractable rightGrip;
 	
 	private bool isStopped;
+	
+	public Material allowenceMaterial;
+	
 		
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
 	protected void Start()
@@ -87,6 +90,12 @@ public class TimeManagedLeverControl : MonoBehaviour
 			isFirst = true;
 			return;
 		}
+		
+		if(isFirst)
+		{
+			allowenceMaterial.color = new Color(0f, 1f, 0f);
+		}
+		
 		if(fingerLeft1 && fingerLeft2 && fingerLeft3) 
 		{
 			RotateByHand(false);
@@ -169,5 +178,6 @@ public class TimeManagedLeverControl : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
+		allowenceMaterial.color = new Color(1f, 0f, 0f);
 	}
 }

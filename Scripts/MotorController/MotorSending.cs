@@ -12,15 +12,14 @@ public class MotorSending : MonoBehaviour
 	private NetworkStream stream;
 	public GameObject motorSim;
 	public TMP_InputField ipField;
-	float prevAngle = 0f;
 	public Text responce;
 	private TouchScreenKeyboard keyboard;
 	[SerializeField] private string SECRET;
 	
-	public int motor;
+	//public int motor;
 	
 	public bool isTCP;
-	private bool isConnected = false;
+	public bool isConnected = false;
 	
 	public VelocityManagement velMan1, velMan2;
 	
@@ -50,23 +49,11 @@ public class MotorSending : MonoBehaviour
     // Update is called once per frame
 	void Update()
     {
-	    float angle1 = motorSim.transform.rotation.eulerAngles.y;
-	    
-	    //Debug.LogError("angleY: " + angle1);
-	    if(prevAngle != angle1 && isConnected)
-	    {
-	    	//SendValues(angle1, "angle", motor);
-	    	float sendingAngle = angle1-45f;
-	    	SendValues(sendingAngle, "san", motor);
-	    	prevAngle = angle1;
-	    }
-	    
-	    if(keyboard != null)
-	    {
-	    	ipField.text = keyboard.text;
+	    //if(keyboard != null)
+	    //{
+	    //	ipField.text = keyboard.text;
 	    	
-	    }
-	    
+	    //}
     
     }
     

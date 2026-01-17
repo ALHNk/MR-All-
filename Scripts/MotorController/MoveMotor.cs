@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
 
 public class MoveMotor : MonoBehaviour
 {
-
+	public bool isSan;
 	
 	private Quaternion prevFingerRotation;
 	private bool isFirst = true;
@@ -16,11 +17,18 @@ public class MoveMotor : MonoBehaviour
 	
 	private GrabFreeTransformer gft;
 	public float lowLimiti = 0, highLimiti = 360;
+	public HandGrabInteractable grabInt;
+	public float maxAllowedHandAngularSpeed;
 	
     void Start()
 	{
 		gft = GetComponent<GrabFreeTransformer>();
 		//StartMotorPosition(12, 45, 87);
+		
+		if(grabInt == null)
+		{
+			grabInt = GetComponentInChildren<HandGrabInteractable>();
+		}
     }
 
 	protected void OnTriggerStay(Collider other)
@@ -32,7 +40,10 @@ public class MoveMotor : MonoBehaviour
 		if(other.CompareTag("FingerLeft2")) fingerLeft2 = true;
 		if(other.CompareTag("FingerLeft3")) fingerLeft3 = true;
 		
-		canRotate();
+		if(grabInt.State == InteractableState.Select)
+		{
+			canRotate();
+		}
 		
 	}
 	
@@ -68,9 +79,24 @@ public class MoveMotor : MonoBehaviour
 		{
 			prevFingerRotation = hand.rotation;
 			isFirst = false;
+			return;
 		}
 		
-		float deltaY = hand.eulerAngles.y - prevFingerRotation.eulerAngles.y;
+		float angularDelta = Quaternion.Angle(prevFingerRotation, hand.rotation);
+		float handAngularSpeed = angularDelta / Time.deltaTime; 
+
+		if (handAngularSpeed > maxAllowedHandAngularSpeed)
+		{
+			prevFingerRotation = hand.rotation;
+			return;
+		}
+		
+		float deltaY = Mathf.DeltaAngle(
+			prevFingerRotation.eulerAngles.y,
+			hand.eulerAngles.y
+		);
+		
+		//float deltaY = hand.eulerAngles.y - prevFingerRotation.eulerAngles.y;
 		float newAngle = yAngle + deltaY;
 		if(newAngle >= lowLimiti && newAngle <= highLimiti)
 		{
@@ -90,34 +116,42 @@ public class MoveMotor : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
-		transform.rotation = Quaternion.Euler(0, 45f, 0);
+		if(isSan) 
+		{
+			transform.rotation = Quaternion.Euler(0, 45f, 0);
+		}
 	}
 	
-	public void StartMotorPosition(float positionNow, float positionLow, float positionUp)
+	public void StartMotorPosition(float positionNow)
 	{
 		transform.rotation = Quaternion.Euler(0, positionNow, 0);
-		lowLimiti = positionLow;
-		highLimiti = positionUp;
-		var constraints = new TransformerUtils.RotationConstraints()
-		{
-			XAxis = new TransformerUtils.ConstrainedAxis()
-			{
-				ConstrainAxis = true, 
-				AxisRange = new TransformerUtils.FloatRange() {Min = 0, Max = 0}
-			},
-			YAxis = new TransformerUtils.ConstrainedAxis()
-			{
-				ConstrainAxis = true, 
-				AxisRange = new TransformerUtils.FloatRange() {Min = positionUp, Max = positionLow}
-			},
-			ZAxis = new TransformerUtils.ConstrainedAxis()
-			{
-				ConstrainAxis = true, 
-				AxisRange = new TransformerUtils.FloatRange() {Min = 0, Max = 0}
-			}
-		};
-		gft.InjectOptionalRotationConstraints(constraints);
+		
 	}
+	//public void StartMotorPosition(float positionNow, float positionLow, float positionUp)
+	//{
+	//	transform.rotation = Quaternion.Euler(0, positionNow, 0);
+	//	lowLimiti = positionLow;
+	//	highLimiti = positionUp;
+	//	var constraints = new TransformerUtils.RotationConstraints()
+	//	{
+	//		XAxis = new TransformerUtils.ConstrainedAxis()
+	//		{
+	//			ConstrainAxis = true, 
+	//			AxisRange = new TransformerUtils.FloatRange() {Min = 0, Max = 0}
+	//		},
+	//		YAxis = new TransformerUtils.ConstrainedAxis()
+	//		{
+	//			ConstrainAxis = true, 
+	//			AxisRange = new TransformerUtils.FloatRange() {Min = positionUp, Max = positionLow}
+	//		},
+	//		ZAxis = new TransformerUtils.ConstrainedAxis()
+	//		{
+	//			ConstrainAxis = true, 
+	//			AxisRange = new TransformerUtils.FloatRange() {Min = 0, Max = 0}
+	//		}
+	//	};
+	//	gft.InjectOptionalRotationConstraints(constraints);
+	//}
 	
 }
 		

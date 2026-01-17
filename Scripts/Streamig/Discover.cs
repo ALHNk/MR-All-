@@ -16,6 +16,7 @@ public class Discover : MonoBehaviour
 	
 	public MotorSending motor;
 	public TCPHeartbeat heart;
+	private bool isConnected = false;
     
 	void Start()
 	{
@@ -28,7 +29,11 @@ public class Discover : MonoBehaviour
 	
 	public void DiscoverStart()
 	{
-		StartCoroutine(DiscoverAndConnect());
+		if(isConnected == false)
+		{
+			StartCoroutine(DiscoverAndConnect());
+		}
+		
 	}
 	
 	IEnumerator ConnectMotor()
@@ -95,6 +100,7 @@ public class Discover : MonoBehaviour
 				heart.SetIP(discoveredHost);
 				
 				success = true;
+				isConnected = true;
 			}
 			else
 			{

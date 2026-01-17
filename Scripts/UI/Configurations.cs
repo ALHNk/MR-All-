@@ -41,11 +41,11 @@ public class Configurations : MonoBehaviour
 	
 	public void LeverSensTextChange()
 	{
-		leverSensText.text = leverSensBar.value.ToString();
+		leverSensText.text = leverSensBar.value.ToString("F2");
 	}
 	public void LeverScaleTextChange()
 	{
-		leverScaleText.text = leverScaleBar.value.ToString();
+		leverScaleText.text = leverScaleBar.value.ToString("F2");
 	}
 	
 	public void ChangeLeverSencitivity()

@@ -34,7 +34,7 @@ public class StreamingHolder : MonoBehaviour
 	
 	void Update()
 	{
-		if(isLocked)
+		if(!isLocked)
 		{
 			MotionNotLocked();
 			holderPositionChanger.transform.position = transform.position - holderOffset;
