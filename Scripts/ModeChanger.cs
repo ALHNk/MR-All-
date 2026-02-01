@@ -20,7 +20,7 @@ public class ModeChanger : MonoBehaviour
 	{
 		WheelModeEnv.SetActive(isSpeedMode);
 		SpeedModeEnv.SetActive(!isSpeedMode);
-		if(isSpeedMode)
+		if(!isSpeedMode)
 		{
 			modeText.text = "Speed Mode";
 		}

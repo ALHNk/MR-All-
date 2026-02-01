@@ -17,6 +17,7 @@ public class StreamingHolder : MonoBehaviour
 	
 	private Vector3 initialChangerScale;
 	private Vector3 initialHolderScale;
+	private Vector3 initialHolderOffset;
 	
 	void Start()
 	{
@@ -27,9 +28,15 @@ public class StreamingHolder : MonoBehaviour
 		targetPosition = transform.position;
 		holderPositionChanger.SetActive(false);
 		holderOffset = transform.position - holderPositionChanger.transform.position;
+		initialHolderOffset = holderOffset;
 		
 		initialHolderScale = transform.localScale;
 		initialChangerScale = holderPositionChanger.transform.localScale;
+	}
+	
+	public void SetOffset()
+	{
+		offset = transform.position - player.transform.position;
 	}
 	
 	void Update()
@@ -90,6 +97,11 @@ public class StreamingHolder : MonoBehaviour
 			changerScale.x / initialChangerScale.x,
 			changerScale.y / initialChangerScale.y,
 			changerScale.z / initialChangerScale.z
+		);
+		offset = new Vector3(
+			changerScale.x / initialHolderOffset.x,
+			changerScale.y / initialHolderOffset.y,
+			changerScale.z / initialHolderOffset.z
 		);
 
 		transform.localScale = Vector3.Scale(initialHolderScale, scaleMultiplier);

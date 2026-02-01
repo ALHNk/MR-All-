@@ -19,9 +19,10 @@ public class StreamCanvasLocker : MonoBehaviour
 
 	public void LockClicked()
 	{
-		holderPositionChanger.SetActive(isLocked);
 		holder.isLocked = !isLocked;
 		isLocked = !isLocked;
+		holder.SetOffset();
+		holderPositionChanger.SetActive(isLocked);
 		if(isLocked)
 		{
 			lockerText.text = "Unlock";

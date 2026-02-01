@@ -24,17 +24,18 @@ public class VelocityManagement : MonoBehaviour
     
 	public void ChangedVelocity()
 	{
-		velocity = velocityScrollbar.value * 29f;
+		velocity = velocityScrollbar.value * 15f;
 		velocityValue.text = velocity.ToString("F2");
 	}
 	
 	public void SetVelocity()
 	{
 		sender.SendValues((velocity), "velocity", motor);
+		sender.SendValues((velocity), "velocity", motor+1);
 	}
 	public void SetVelocityCome(float velocity)
 	{
 		velocityValue.text = velocity.ToString("F2");
-		velocityScrollbar.value = velocity/29f;
+		velocityScrollbar.value = velocity/15f;
 	}
 }

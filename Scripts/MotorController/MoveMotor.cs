@@ -20,15 +20,25 @@ public class MoveMotor : MonoBehaviour
 	public HandGrabInteractable grabInt;
 	public float maxAllowedHandAngularSpeed;
 	
+	private Grabbable grabbable;
+	private WheelSender wheelSender;
+	
+	
+	private bool fingersValid = false;
+	
     void Start()
 	{
 		gft = GetComponent<GrabFreeTransformer>();
 		//StartMotorPosition(12, 45, 87);
 		
+		
+		
 		if(grabInt == null)
 		{
 			grabInt = GetComponentInChildren<HandGrabInteractable>();
 		}
+		grabbable = GetComponent<Grabbable>();
+		wheelSender = GetComponent<WheelSender>();
     }
 
 	protected void OnTriggerStay(Collider other)
@@ -40,19 +50,43 @@ public class MoveMotor : MonoBehaviour
 		if(other.CompareTag("FingerLeft2")) fingerLeft2 = true;
 		if(other.CompareTag("FingerLeft3")) fingerLeft3 = true;
 		
-		if(grabInt.State == InteractableState.Select)
+		
+		
+		if(grabbable.SelectingPoints.Count == 2)
 		{
-			canRotate();
+			wheelSender.OnPointRotation();
+		}
+		else if(grabbable.SelectingPoints.Count == 1)
+		{
+			if(grabInt.State == InteractableState.Select)
+			{
+				canRotate();
+				if(fingersValid)
+				{
+					wheelSender.SanRotation(yAngle);	
+				}
+					
+			}
+			
 		}
 		
 	}
+	
+
 	
 	public void canRotate()
 	{
 		if((!fingerRight1 || !fingerRight2 || !fingerRight3) && (!fingerLeft1 || !fingerLeft2 || !fingerLeft3))
 		{
 			isFirst = true;
+			fingersValid = false;
 			return;
+		}
+		
+		if(!fingersValid)
+		{
+			wheelSender.InitializeSmoothedAngle(yAngle);
+			fingersValid = true;
 		}
 		
 		if( fingerRight1 && fingerRight2 && fingerRight3)
@@ -102,6 +136,7 @@ public class MoveMotor : MonoBehaviour
 		{
 			yAngle = newAngle;
 			transform.rotation = Quaternion.Euler(0, yAngle, 0);
+			//wheelSender.printYAngle(yAngle);
 			prevFingerRotation = hand.rotation;
 		}
 		
@@ -119,11 +154,14 @@ public class MoveMotor : MonoBehaviour
 		if(isSan) 
 		{
 			transform.rotation = Quaternion.Euler(0, 45f, 0);
+			yAngle = 45f;
+			//wheelSender.SendZero();
 		}
 	}
 	
 	public void StartMotorPosition(float positionNow)
 	{
+		yAngle = positionNow;
 		transform.rotation = Quaternion.Euler(0, positionNow, 0);
 		
 	}

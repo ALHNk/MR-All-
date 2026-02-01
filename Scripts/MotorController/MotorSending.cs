@@ -30,11 +30,16 @@ public class MotorSending : MonoBehaviour
 	
 	private bool isTorqueOn = false;
 	public TMP_Text torqueText;
+	public ChangeDegrees degreeApplicator;
 	
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
 	    if(!isTCP) udpClient = new UdpClient();
+	    if(degreeApplicator == null)
+	    {
+	    	degreeApplicator = FindObjectOfType<ChangeDegrees>();
+	    }
     }
 
 	public void OpenKeyBoard()
@@ -98,9 +103,16 @@ public class MotorSending : MonoBehaviour
 			if (motorStatus.status == "accepted")
 			{
 				isConnected = true;
-
-				velMan1.SetVelocityCome(motorStatus.motor1velocity);
-				velMan2.SetVelocityCome(motorStatus.motor2velocity);
+				
+				if(velMan1 != null)
+				{
+					velMan1.SetVelocityCome(motorStatus.motor1velocity);
+				}
+				if(velMan2 != null)
+				{
+					velMan2.SetVelocityCome(motorStatus.motor2velocity);
+				}
+				
 
 				float m1Pos = motorStatus.motor1position;
 				float m2Pos = motorStatus.motor2position;
@@ -111,6 +123,8 @@ public class MotorSending : MonoBehaviour
 				
 				//moveMotor1.StartMotorPosition(m1Pos, m1Low, m1Up);
 				//moveMotor2.StartMotorPosition(m2Pos, m2Low, m2Up);
+				degreeApplicator.SetScrollbarValue(m1Pos);
+				degreeApplicator.SetValueText();
 				isConnected = true;
 				
 			}
@@ -220,12 +234,12 @@ public class MotorSending : MonoBehaviour
 		if(torqueStatus.Equals("on\n"))
 		{
 			isTorqueOn = true;
-			torqueText.text = "Torque off";
+			torqueText.text = "Torqued on";
 		}
 		else if(torqueStatus.Equals("off\n"))
 		{
 			isTorqueOn = false;
-			torqueText.text = "Torque on";
+			torqueText.text = "Torqued off";
 		}
 	}
 	

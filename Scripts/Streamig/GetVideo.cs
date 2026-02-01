@@ -165,21 +165,24 @@ public class GetVideo : MonoBehaviour
     
 		if (inputTexture.LoadImage(data))
 		{
-			Texture outputTexture;  // Changed from Texture2D
+			//Texture outputTexture;  // Changed from Texture2D
 		
-			if(isConverting)
-			{
-				outputTexture = fishEyeCon.Convert(inputTexture);  // No second parameter
-			}
-			else 
-			{
-				outputTexture = inputTexture;
-			}
+			//if(isConverting)
+			//{
+			//	outputTexture = fishEyeCon.Convert(inputTexture);  // No second parameter
+			//}
+			//else 
+			//{
+			//	outputTexture = inputTexture;
+			//}
         
 			if (materialInstance != null)
 			{
-				materialInstance.SetTexture("_BaseMap", outputTexture);
+				materialInstance.SetTexture("_BaseMap", inputTexture);
 			}
+			
+			//RenderSettings.skybox.SetTexture("_Tex", outputTexture);
+			//DynamicGI.UpdateEnvironment();
 			//if(fishEye != null)
 			//{
 			//	fishEye.texture = outputTexture;
