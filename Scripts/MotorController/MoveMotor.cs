@@ -21,10 +21,16 @@ public class MoveMotor : MonoBehaviour
 	public float maxAllowedHandAngularSpeed;
 	
 	private Grabbable grabbable;
+	[SerializeField]
+	private GameObject wheelMesh;
 	private WheelSender wheelSender;
 	
 	
 	private bool fingersValid = false;
+	
+	private float previousMeshAngle = 0f;
+	
+	private bool isZeroed;
 	
     void Start()
 	{
@@ -38,8 +44,30 @@ public class MoveMotor : MonoBehaviour
 			grabInt = GetComponentInChildren<HandGrabInteractable>();
 		}
 		grabbable = GetComponent<Grabbable>();
-		wheelSender = GetComponent<WheelSender>();
-    }
+		if(wheelSender == null) {
+			wheelSender = wheelMesh.GetComponent<WheelSender>();
+		}
+		
+		previousMeshAngle = transform.localRotation.eulerAngles.y;
+	}
+    
+	// This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
+	protected void FixedUpdate()
+	{
+		RotateMesh();
+	}
+	
+	// Update is called every frame, if the MonoBehaviour is enabled.
+	protected void Update()
+	{
+		if(grabbable.SelectingPoints.Count == 0 && !isZeroed)
+		{
+			transform.localRotation = Quaternion.Euler(0, 45f, 0);
+			wheelMesh.transform.localRotation = Quaternion.Euler(0, 45f, 0);
+			wheelSender.SendZero();
+			isZeroed = true;
+		}
+	}
 
 	protected void OnTriggerStay(Collider other)
 	{
@@ -49,7 +77,7 @@ public class MoveMotor : MonoBehaviour
 		if(other.CompareTag("FingerLeft1")) fingerLeft1 = true;
 		if(other.CompareTag("FingerLeft2")) fingerLeft2 = true;
 		if(other.CompareTag("FingerLeft3")) fingerLeft3 = true;
-		
+		isZeroed = false;
 		
 		
 		if(grabbable.SelectingPoints.Count == 2)
@@ -135,7 +163,7 @@ public class MoveMotor : MonoBehaviour
 		if(newAngle >= lowLimiti && newAngle <= highLimiti)
 		{
 			yAngle = newAngle;
-			transform.rotation = Quaternion.Euler(0, yAngle, 0);
+			//transform.localRotation= Quaternion.Euler(0, yAngle, 0);
 			//wheelSender.printYAngle(yAngle);
 			prevFingerRotation = hand.rotation;
 		}
@@ -151,10 +179,12 @@ public class MoveMotor : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
+		//transform.localRotation = Quaternion.Euler(0, 45f, 0);
+		//wheelMesh.transform.localRotation = Quaternion.Euler(0, 45f, 0);
+		yAngle = 45f;
 		if(isSan) 
 		{
-			transform.rotation = Quaternion.Euler(0, 45f, 0);
-			yAngle = 45f;
+			
 			//wheelSender.SendZero();
 		}
 	}
@@ -165,31 +195,32 @@ public class MoveMotor : MonoBehaviour
 		transform.rotation = Quaternion.Euler(0, positionNow, 0);
 		
 	}
-	//public void StartMotorPosition(float positionNow, float positionLow, float positionUp)
-	//{
-	//	transform.rotation = Quaternion.Euler(0, positionNow, 0);
-	//	lowLimiti = positionLow;
-	//	highLimiti = positionUp;
-	//	var constraints = new TransformerUtils.RotationConstraints()
-	//	{
-	//		XAxis = new TransformerUtils.ConstrainedAxis()
-	//		{
-	//			ConstrainAxis = true, 
-	//			AxisRange = new TransformerUtils.FloatRange() {Min = 0, Max = 0}
-	//		},
-	//		YAxis = new TransformerUtils.ConstrainedAxis()
-	//		{
-	//			ConstrainAxis = true, 
-	//			AxisRange = new TransformerUtils.FloatRange() {Min = positionUp, Max = positionLow}
-	//		},
-	//		ZAxis = new TransformerUtils.ConstrainedAxis()
-	//		{
-	//			ConstrainAxis = true, 
-	//			AxisRange = new TransformerUtils.FloatRange() {Min = 0, Max = 0}
-	//		}
-	//	};
-	//	gft.InjectOptionalRotationConstraints(constraints);
-	//}
+	
+	public void RotateMesh()
+	{
+		float currentAngle = wheelMesh.transform.localEulerAngles.y;
+		if(currentAngle > 180f) currentAngle -= 360f;
+    
+		float targetAngle = transform.localRotation.eulerAngles.y;
+		if(targetAngle > 180f) targetAngle -= 360f;
+	
+		//float angularDelta = Mathf.Abs(Mathf.DeltaAngle(previousMeshAngle, targetAngle));
+		//float angularSpeed = angularDelta / Time.deltaTime;
+	
+		//if(angularSpeed > maxAllowedHandAngularSpeed)
+		//{
+		//	previousMeshAngle = currentAngle;
+		//	return;
+		//}
+    
+		float newAngle = Mathf.Lerp(currentAngle, targetAngle, Time.deltaTime * 5f);
+    
+		Vector3 newEuler = wheelMesh.transform.localEulerAngles;
+		newEuler.y = newAngle;
+		wheelMesh.transform.localEulerAngles = newEuler;
+	
+		previousMeshAngle = targetAngle;
+	}
 	
 }
 		

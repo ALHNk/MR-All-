@@ -12,8 +12,8 @@ public class ModeChanger : MonoBehaviour
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
 	protected void Start()
 	{
-		WheelModeEnv.SetActive(false);
-		SpeedModeEnv.SetActive(true);
+		//WheelModeEnv.SetActive(false);
+		//SpeedModeEnv.SetActive(true);
 	}
 	
 	public void Change()

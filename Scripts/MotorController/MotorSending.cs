@@ -243,6 +243,13 @@ public class MotorSending : MonoBehaviour
 		}
 	}
 	
+	public void ESTOP()
+	{
+		string msg = "ESTOP";
+		byte[] data = Encoding.ASCII.GetBytes(msg);
+		stream.Write(data, 0, data.Length);
+	}
+	
 	// Sent to all game objects before the application is quit.
 	protected void OnApplicationQuit()
 	{

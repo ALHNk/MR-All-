@@ -109,6 +109,7 @@ public class StreamingHolder : MonoBehaviour
 	private void MotionLocked()
 	{
 		transform.position = holderPositionChanger.transform.position + holderOffset;
+		SetOffset();
 		ApplyRelativeScale();
 	}
 }

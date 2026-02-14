@@ -15,6 +15,8 @@ public class WheelSender : MonoBehaviour
 	
 	public TMPro.TMP_Text huitext;
 	
+	private bool isZeroSend;
+	
 	void Start()
 	{
 		if(sender == null)
@@ -32,7 +34,7 @@ public class WheelSender : MonoBehaviour
 	// Update is called every frame, if the MonoBehaviour is enabled.
 	protected void Update()
 	{
-		if(prevAngle != 45f && transform.localRotation.eulerAngles.y == 45f)
+		if(!isZeroSend && transform.localRotation.eulerAngles.y == 45f)
 		{
 			SendZero();
 		}
@@ -42,6 +44,8 @@ public class WheelSender : MonoBehaviour
 	{
 		sender.SendValues(0f, what, motor);
 		sender.SendValues(0f, "prot", motor);
+		prevAngle = 45f;
+		isZeroSend = true;
 	}
     
 	public void SanRotation(float directAngle)
@@ -57,6 +61,8 @@ public class WheelSender : MonoBehaviour
 		//}
 		
 		float angle1 = transform.localRotation.eulerAngles.y;
+		//float angle1 = directAngle;
+		isZeroSend = false;
 		if(angle1 > 180)
 		{
 			angle1 -= 360f;
@@ -65,15 +71,16 @@ public class WheelSender : MonoBehaviour
 		if(Mathf.Abs(prevAngle - smoothedAngle) > rotationDeadzone && Mathf.Abs(prevAngle - smoothedAngle) < rotationMaxAmplitue && sender.isConnected)
 		{
 			float sendingAngle = smoothedAngle - decreaseAngel;
-			huitext.text = smoothedAngle.ToString("F1");
+			huitext.text = angle1.ToString("F1");
 			sender.SendValues(sendingAngle, what, motor);
-			prevAngle = smoothedAngle;
 		}
+		prevAngle = angle1;
 	}
     
 	public void OnPointRotation()
 	{
 		float angle1 = transform.localRotation.eulerAngles.y;
+		isZeroSend = false;
 		if(angle1 > 180)
 		{
 			angle1 -= 360f;
@@ -82,14 +89,15 @@ public class WheelSender : MonoBehaviour
 		if(Mathf.Abs(prevAngle - smoothedAngle) > rotationDeadzone && Mathf.Abs(prevAngle - smoothedAngle) < rotationMaxAmplitue && sender.isConnected)
 		{
 			float sendingAngle = smoothedAngle - decreaseAngel;
-			huitext.text = smoothedAngle.ToString("F1");
+			huitext.text = sendingAngle.ToString("F1");
 			sender.SendValues(sendingAngle, "prot", motor);
-			prevAngle = smoothedAngle;
+			
 		}
+		prevAngle = angle1;
 	}
 	
 	public void printYAngle(float angle)
 	{
-		huitext.text = angle.ToString("F1");
+		//huitext.text = angle.ToString("F1");
 	}
 }

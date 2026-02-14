@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class ChangeDegrees : MonoBehaviour
 {
-	public Scrollbar degreeScrollbar;
+	public CustomSlider degreeScrollbar;
 	public TMPro.TMP_Text valuetext;
 	public MotorSending sender;
 	public int motorid;
@@ -19,15 +19,19 @@ public class ChangeDegrees : MonoBehaviour
     
 	public void SetScrollbarValue(float value)
 	{
-		degreeScrollbar.value = value;
+		degreeScrollbar.SetValue(value);
 	}
 	public void SetValueText()
 	{
-		valuetext.text = degreeScrollbar.value.ToString("F2");
+		valuetext.text = degreeScrollbar.GetValue().ToString("F2");
 	}
 	public void ApplyDegree()
 	{
-		float degree = degreeScrollbar.value;
+		float degree = degreeScrollbar.GetValue();
+		if(degree < 0.01f)
+		{
+			degree = 0.01f;
+		}
 		sender.SendValues(degree, "twodegree", motorid);
 	}
 }
