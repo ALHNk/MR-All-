@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿﻿using UnityEngine;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
 
@@ -21,18 +21,13 @@ public class MoveMotor : MonoBehaviour
 	public float maxAllowedHandAngularSpeed;
 	
 	private Grabbable grabbable;
-	[SerializeField]
-	private GameObject wheelMesh;
 	private WheelSender wheelSender;
 	
 	
 	private bool fingersValid = false;
-	
-	private float previousMeshAngle = 0f;
-	
 	private bool isZeroed;
 	
-    void Start()
+	void Start()
 	{
 		gft = GetComponent<GrabFreeTransformer>();
 		//StartMotorPosition(12, 45, 87);
@@ -44,26 +39,14 @@ public class MoveMotor : MonoBehaviour
 			grabInt = GetComponentInChildren<HandGrabInteractable>();
 		}
 		grabbable = GetComponent<Grabbable>();
-		if(wheelSender == null) {
-			wheelSender = wheelMesh.GetComponent<WheelSender>();
-		}
-		
-		previousMeshAngle = transform.localRotation.eulerAngles.y;
-	}
-    
-	// This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
-	protected void FixedUpdate()
-	{
-		RotateMesh();
+		wheelSender = GetComponent<WheelSender>();
 	}
 	
-	// Update is called every frame, if the MonoBehaviour is enabled.
 	protected void Update()
 	{
 		if(grabbable.SelectingPoints.Count == 0 && !isZeroed)
 		{
 			transform.localRotation = Quaternion.Euler(0, 45f, 0);
-			wheelMesh.transform.localRotation = Quaternion.Euler(0, 45f, 0);
 			wheelSender.SendZero();
 			isZeroed = true;
 		}
@@ -77,8 +60,8 @@ public class MoveMotor : MonoBehaviour
 		if(other.CompareTag("FingerLeft1")) fingerLeft1 = true;
 		if(other.CompareTag("FingerLeft2")) fingerLeft2 = true;
 		if(other.CompareTag("FingerLeft3")) fingerLeft3 = true;
-		isZeroed = false;
 		
+		isZeroed = false;
 		
 		if(grabbable.SelectingPoints.Count == 2)
 		{
@@ -163,7 +146,7 @@ public class MoveMotor : MonoBehaviour
 		if(newAngle >= lowLimiti && newAngle <= highLimiti)
 		{
 			yAngle = newAngle;
-			//transform.localRotation= Quaternion.Euler(0, yAngle, 0);
+			//transform.rotation = Quaternion.Euler(0, yAngle, 0);
 			//wheelSender.printYAngle(yAngle);
 			prevFingerRotation = hand.rotation;
 		}
@@ -179,12 +162,10 @@ public class MoveMotor : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
-		//transform.localRotation = Quaternion.Euler(0, 45f, 0);
-		//wheelMesh.transform.localRotation = Quaternion.Euler(0, 45f, 0);
-		yAngle = 45f;
 		if(isSan) 
 		{
-			
+			//transform.rotation = Quaternion.Euler(0, 45f, 0);
+			//yAngle = 45f;
 			//wheelSender.SendZero();
 		}
 	}
@@ -195,32 +176,4 @@ public class MoveMotor : MonoBehaviour
 		transform.rotation = Quaternion.Euler(0, positionNow, 0);
 		
 	}
-	
-	public void RotateMesh()
-	{
-		float currentAngle = wheelMesh.transform.localEulerAngles.y;
-		if(currentAngle > 180f) currentAngle -= 360f;
-    
-		float targetAngle = transform.localRotation.eulerAngles.y;
-		if(targetAngle > 180f) targetAngle -= 360f;
-	
-		//float angularDelta = Mathf.Abs(Mathf.DeltaAngle(previousMeshAngle, targetAngle));
-		//float angularSpeed = angularDelta / Time.deltaTime;
-	
-		//if(angularSpeed > maxAllowedHandAngularSpeed)
-		//{
-		//	previousMeshAngle = currentAngle;
-		//	return;
-		//}
-    
-		float newAngle = Mathf.Lerp(currentAngle, targetAngle, Time.deltaTime * 5f);
-    
-		Vector3 newEuler = wheelMesh.transform.localEulerAngles;
-		newEuler.y = newAngle;
-		wheelMesh.transform.localEulerAngles = newEuler;
-	
-		previousMeshAngle = targetAngle;
-	}
-	
 }
-		

@@ -30258,7 +30258,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1196055299}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 86a1c9f3980ed7b46ac5267d29bb9e07, type: 3}
   m_Name: 
@@ -32753,7 +32753,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1326778161
 Transform:
   m_ObjectHideFlags: 0
@@ -47188,13 +47188,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9fb0b8ca720cd94f8ca083c29feb897, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  motorSim: {fileID: 102000959}
+  motorSim: {fileID: 1196055299}
   ipField: {fileID: 1806127922}
   responce: {fileID: 1052446345}
   SECRET: SASM223
   isTCP: 1
   isConnected: 0
-  velMan1: {fileID: 1978715270}
+  velMan1: {fileID: 1641959608}
   velMan2: {fileID: 1442233056}
   moveMotor1: {fileID: 102000962}
   moveMotor2: {fileID: 1517790781}

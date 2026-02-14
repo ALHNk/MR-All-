@@ -3,7 +3,7 @@
 public class LeverTransformCon : MonoBehaviour
 {
 	private float initialScale;
-	protected void Start()
+	protected void Awake()
 	{
 		initialScale = transform.localScale.x;
 	}

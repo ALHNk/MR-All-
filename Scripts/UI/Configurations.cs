@@ -40,7 +40,8 @@ public class Configurations : MonoBehaviour
 		{
 			float savedScale = PlayerPrefs.GetFloat("LeverScale");
 			leverScaleBar.value = savedScale;
-			leverBase.ChangeScale(savedScale*0.4f + 0.95f);
+			float actualScale = savedScale * 0.4f + 0.95f;
+			leverBase.ChangeScale(actualScale);		
 		}
 		else
 		{
