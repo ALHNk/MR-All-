@@ -12,26 +12,34 @@ public class MotorSending : MonoBehaviour
 	private NetworkStream stream;
 	public GameObject motorSim;
 	public TMP_InputField ipField;
-	float prevAngle = 0f;
 	public Text responce;
 	private TouchScreenKeyboard keyboard;
 	[SerializeField] private string SECRET;
 	
-	public int motor;
+	//public int motor;
 	
 	public bool isTCP;
-	private bool isConnected = false;
+	public bool isConnected = false;
 	
 	public VelocityManagement velMan1, velMan2;
 	
 	public MoveMotor moveMotor1, moveMotor2;
 	
 	private string staticIP = "10.39.129.122";
+	public string discoveredIp = "";
+	
+	private bool isTorqueOn = false;
+	public TMP_Text torqueText;
+	public ChangeDegrees degreeApplicator;
 	
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
 	    if(!isTCP) udpClient = new UdpClient();
+	    if(degreeApplicator == null)
+	    {
+	    	degreeApplicator = FindObjectOfType<ChangeDegrees>();
+	    }
     }
 
 	public void OpenKeyBoard()
@@ -46,23 +54,18 @@ public class MotorSending : MonoBehaviour
     // Update is called once per frame
 	void Update()
     {
-	    float angle1 = motorSim.transform.rotation.eulerAngles.y;
-	    
-	    //Debug.LogError("angleY: " + angle1);
-	    if(prevAngle != angle1 && isConnected)
-	    {
-	    	SendValues(angle1, "angle", motor);
-	    	prevAngle = angle1;
-	    }
-	    
-	    if(keyboard != null)
-	    {
-	    	ipField.text = keyboard.text;
+	    //if(keyboard != null)
+	    //{
+	    //	ipField.text = keyboard.text;
 	    	
-	    }
-	    
+	    //}
     
     }
+    
+	public void SetDiscoveredIp(string ip)
+	{
+		discoveredIp = ip;
+	}
     
 	public void Connect()
 	{
@@ -75,8 +78,13 @@ public class MotorSending : MonoBehaviour
 		{
 			yield break;
 		}
+		
 		string ip = "";
-		if(ipField.text == "") 
+		if(discoveredIp != "")
+		{
+			ip = discoveredIp;
+		}
+		else if(ipField.text == "") 
 		{
 			ip = staticIP;
 		}
@@ -95,9 +103,16 @@ public class MotorSending : MonoBehaviour
 			if (motorStatus.status == "accepted")
 			{
 				isConnected = true;
-
-				velMan1.SetVelocityCome(motorStatus.motor1velocity);
-				velMan2.SetVelocityCome(motorStatus.motor2velocity);
+				
+				if(velMan1 != null)
+				{
+					velMan1.SetVelocityCome(motorStatus.motor1velocity);
+				}
+				if(velMan2 != null)
+				{
+					velMan2.SetVelocityCome(motorStatus.motor2velocity);
+				}
+				
 
 				float m1Pos = motorStatus.motor1position;
 				float m2Pos = motorStatus.motor2position;
@@ -106,8 +121,10 @@ public class MotorSending : MonoBehaviour
 				float m2Low = motorStatus.motor2limitlow;
 				float m2Up = motorStatus.motor2limitup;
 				
-				moveMotor1.StartMotorPosition(m1Pos, m1Low, m1Up);
-				moveMotor2.StartMotorPosition(m2Pos, m2Low, m2Up);
+				//moveMotor1.StartMotorPosition(m1Pos, m1Low, m1Up);
+				//moveMotor2.StartMotorPosition(m2Pos, m2Low, m2Up);
+				degreeApplicator.SetScrollbarValue(m1Pos);
+				degreeApplicator.SetValueText();
 				isConnected = true;
 				
 			}
@@ -132,6 +149,7 @@ public class MotorSending : MonoBehaviour
 		}
 		yield return null;
 	}
+	
     
 	public string TakeSecret()
 	{
@@ -139,7 +157,7 @@ public class MotorSending : MonoBehaviour
 		byte[] data = Encoding.ASCII.GetBytes(SECRET);
 		stream.Write(data,0,data.Length);
 		byte[] buffer = new byte[1024];
-		int byteRead = stream.Read(buffer,0,buffer.Length) ;
+		int byteRead = stream.Read(buffer,0,buffer.Length);
 		string secret = Encoding.ASCII.GetString(buffer, 0, byteRead);
 		
 		return secret;
@@ -198,6 +216,38 @@ public class MotorSending : MonoBehaviour
 		byte[] data = Encoding.ASCII.GetBytes(msg);
 		stream.Write(data,0,data.Length);
 		
+	}
+	
+	public void TorqueSwitch()
+	{
+		if(!isTorqueOn)
+		{
+			SendValues(1, "torque");
+		}
+		else
+		{
+			SendValues(0, "torque");
+		}
+		byte[] buffer = new byte[256];
+		int byteRead = stream.Read(buffer,0,buffer.Length);
+		string torqueStatus = Encoding.ASCII.GetString(buffer, 0, byteRead);
+		if(torqueStatus.Equals("on\n"))
+		{
+			isTorqueOn = true;
+			torqueText.text = "Torqued on";
+		}
+		else if(torqueStatus.Equals("off\n"))
+		{
+			isTorqueOn = false;
+			torqueText.text = "Torqued off";
+		}
+	}
+	
+	public void ESTOP()
+	{
+		string msg = "ESTOP";
+		byte[] data = Encoding.ASCII.GetBytes(msg);
+		stream.Write(data, 0, data.Length);
 	}
 	
 	// Sent to all game objects before the application is quit.

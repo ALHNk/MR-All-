@@ -33,6 +33,9 @@ public class TimeManagedLeverControl : MonoBehaviour
 	public HandGrabInteractable rightGrip;
 	
 	private bool isStopped;
+	
+	public Material allowenceMaterial;
+	
 		
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
 	protected void Start()
@@ -44,7 +47,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 	{
 		float currentAngle = lever.eulerAngles.z;
 		if(currentAngle >180f) currentAngle -= 360f;
-		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (2.5f/coef) && currentAngle >(-2.5f/coef)))
+		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (5.0f/coef) && currentAngle >(-5.0f/coef)))
 		{
 			Vector3 newEuler = lever.localEulerAngles;
 			newEuler.z = 0f;
@@ -87,6 +90,12 @@ public class TimeManagedLeverControl : MonoBehaviour
 			isFirst = true;
 			return;
 		}
+		
+		if(isFirst)
+		{
+			allowenceMaterial.color = new Color(0f, 1f, 0f);
+		}
+		
 		if(fingerLeft1 && fingerLeft2 && fingerLeft3) 
 		{
 			RotateByHand(false);
@@ -150,7 +159,15 @@ public class TimeManagedLeverControl : MonoBehaviour
 		previousHandPos = currentHandPos;
 		
 	}
-
+	public float GetMaxAllowedHandSpeed()
+	{
+		return maxAllowedHandSpeed;
+	}
+	
+	public void SetMaxAllowedHandSpeed(float inputSense)
+	{
+		maxAllowedHandSpeed = inputSense;
+	}
 	
 	protected void OnTriggerExit(Collider other)
 	{
@@ -161,5 +178,6 @@ public class TimeManagedLeverControl : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
+		allowenceMaterial.color = new Color(1f, 0f, 0f);
 	}
 }

@@ -5,6 +5,7 @@ public class MainLocker : MonoBehaviour
 	private bool isLocked;
 	[SerializeField] MotorSending sender;
 	private string secret;
+	public TMPro.TMP_Text lockText;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
 	{
@@ -21,13 +22,16 @@ public class MainLocker : MonoBehaviour
 		if(isLocked)
 		{
 			isLocked = false;
-			sender.SendValues(0, "lock", secret);
+			//sender.SendValues(0, "lock", secret);
+			sender.SendValues(0, "lock");
+			lockText.text = "UnLock";
 		}
 		else
 		{
 			isLocked = true;
 			sender.SendValues(1, "lock");
-			secret = sender.TakeSecret();
+			lockText.text = "UnLock";
+			//secret = sender.TakeSecret();
 		}
 	}
     

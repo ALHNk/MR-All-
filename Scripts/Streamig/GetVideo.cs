@@ -176,15 +176,18 @@ public class GetVideo : MonoBehaviour
 			//	outputTexture = inputTexture;
 			//}
         
-			//if (materialInstance != null)
-			//{
-			//	materialInstance.SetTexture("_BaseMap", outputTexture);
-			//}
+			if (materialInstance != null)
+			{
+				materialInstance.SetTexture("_BaseMap", inputTexture);
+			}
+			
+			//RenderSettings.skybox.SetTexture("_Tex", outputTexture);
+			//DynamicGI.UpdateEnvironment();
 			//if(fishEye != null)
 			//{
 			//	fishEye.texture = outputTexture;
 			//}
-			outputTexture = inputTexture;
+			//outputTexture = inputTexture;
 		}
 		else
 		{
