@@ -13,7 +13,7 @@ public class CustomButton : MonoBehaviour
 	public float pressThreshold = 0.005f;
 
 	[Header("Button Event")]
-	public UnityEvent OnButtonPressed;   // Shows in Inspector
+	public UnityEvent OnButtonPressed;   
 
 	void Start()
 	{
@@ -37,10 +37,9 @@ public class CustomButton : MonoBehaviour
 			Vector3.Distance(transform.localPosition, targetPosition) < pressThreshold)
 		{
 			hasTriggered = true;
-			OnButtonPressed?.Invoke();   // 🔥 Calls function from Inspector
+			OnButtonPressed?.Invoke();   
 		}
 
-		// Reset when released
 		if (!isPressed)
 		{
 			hasTriggered = false;
@@ -49,7 +48,8 @@ public class CustomButton : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if ((other.CompareTag("FingerRight1") || other.CompareTag("FingerLeft1")) && !hasEntered)
+		//if ((other.CompareTag("FingerRight1") || other.CompareTag("FingerLeft1")) && !hasEntered)
+		if (other.CompareTag("Palm"))
 		{
 			isPressed = true;
 			hasEntered = true;
@@ -58,7 +58,7 @@ public class CustomButton : MonoBehaviour
 
 	void OnTriggerExit(Collider other)
 	{
-		if (other.CompareTag("FingerRight1") || other.CompareTag("FingerLeft1"))
+		if (other.CompareTag("Palm"))
 		{
 			isPressed = false;
 			hasEntered = false;

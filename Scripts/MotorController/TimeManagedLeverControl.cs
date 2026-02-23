@@ -47,7 +47,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 	{
 		float currentAngle = lever.eulerAngles.z;
 		if(currentAngle >180f) currentAngle -= 360f;
-		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (1.0f/coef) && currentAngle >(-1.0f/coef)))
+		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (5.0f/coef) && currentAngle >(-5.0f/coef)))
 		{
 			Vector3 newEuler = lever.localEulerAngles;
 			newEuler.z = 0f;
