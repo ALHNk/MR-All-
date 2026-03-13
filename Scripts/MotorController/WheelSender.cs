@@ -11,12 +11,13 @@ public class WheelSender : MonoBehaviour
 	private float smoothedAngle = 0f;
 	public float smoothSpeed = 5f;
 	public float rotationDeadzone = 0.5f;
+	public float wheelBasedRotationDeadzone = 5.0f;
+	public float wheelBasedRotationMaxAmplitude = 10.0f;
 	public float rotationMaxAmplitue = 2.0f;
 	
 	public TMPro.TMP_Text huitext;
 	
 	private bool isZeroSend;
-	
 	void Start()
 	{
 		if(sender == null)
@@ -34,7 +35,7 @@ public class WheelSender : MonoBehaviour
 	// Update is called every frame, if the MonoBehaviour is enabled.
 	protected void Update()
 	{
-		if(!isZeroSend && transform.localRotation.eulerAngles.y == 45f)
+		if(!isZeroSend && transform.localRotation.eulerAngles.y == 70f)
 		{
 			SendZero();
 		}
@@ -44,8 +45,12 @@ public class WheelSender : MonoBehaviour
 	{
 		sender.SendValues(0f, what, motor);
 		sender.SendValues(0f, "prot", motor);
-		prevAngle = 45f;
+		prevAngle = 70f;
 		isZeroSend = true;
+	}
+	public void	SendWbrZero()
+	{
+		sender.SendValues(0f, "wbr", 0);
 	}
     
 	public void SanRotation(float directAngle)
@@ -72,7 +77,24 @@ public class WheelSender : MonoBehaviour
 		{
 			float sendingAngle = smoothedAngle - decreaseAngel;
 			huitext.text = angle1.ToString("F1");
-			sender.SendValues(sendingAngle, what, motor);
+			sender.SendValues(-sendingAngle, what, motor);
+		}
+		prevAngle = angle1;
+	}
+	public void WheelBasedRotation()
+	{
+		float angle1 = transform.localRotation.eulerAngles.y;
+		isZeroSend = false;
+		if(angle1 > 180)
+		{
+			angle1 -= 360f;
+		}	
+		smoothedAngle = Mathf.Lerp(smoothedAngle, angle1, Time.deltaTime * smoothSpeed);
+		if(Mathf.Abs(prevAngle - smoothedAngle) > wheelBasedRotationDeadzone && Mathf.Abs(prevAngle - smoothedAngle) < wheelBasedRotationMaxAmplitude && sender.isConnected)
+		{
+			float sendingAngle = smoothedAngle - decreaseAngel;
+			huitext.text = angle1.ToString("F1");
+			sender.SendValues(-sendingAngle, "wbr", 0);
 		}
 		prevAngle = angle1;
 	}

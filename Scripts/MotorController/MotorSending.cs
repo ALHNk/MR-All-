@@ -30,6 +30,7 @@ public class MotorSending : MonoBehaviour
 	
 	private bool isTorqueOn = false;
 	public TMP_Text torqueText;
+	public Image torqueImage;
 	public ChangeDegrees degreeApplicator;
 	
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -234,11 +235,13 @@ public class MotorSending : MonoBehaviour
 		if(torqueStatus.Equals("on\n"))
 		{
 			isTorqueOn = true;
+			torqueImage.color = Color.green;
 			torqueText.text = "Torqued on";
 		}
 		else if(torqueStatus.Equals("off\n"))
 		{
 			isTorqueOn = false;
+			torqueImage.color = Color.blue;
 			torqueText.text = "Torqued off";
 		}
 	}

@@ -27,6 +27,8 @@ public class MoveMotor : MonoBehaviour
 	private bool fingersValid = false;
 	private bool isZeroed;
 	
+	public GlobalVaules globalValues;
+	
 	void Start()
 	{
 		gft = GetComponent<GrabFreeTransformer>();
@@ -40,15 +42,36 @@ public class MoveMotor : MonoBehaviour
 		}
 		grabbable = GetComponent<Grabbable>();
 		wheelSender = GetComponent<WheelSender>();
+		if(globalValues == null)
+		{
+			globalValues = FindObjectOfType<GlobalVaules>();
+		}
 	}
 	
 	protected void Update()
 	{
 		if(grabbable.SelectingPoints.Count == 0 && !isZeroed)
 		{
-			transform.localRotation = Quaternion.Euler(0, 45f, 0);
+			transform.localRotation = Quaternion.Euler(0, 70f, 0);
 			wheelSender.SendZero();
 			isZeroed = true;
+			wheelSender.SendWbrZero();
+			
+			//if(globalValues.isDifferentialSteerMode)
+			//{
+			//	transform.localRotation = Quaternion.Euler(0, 70f, 0);
+			//	wheelSender.SendZero();
+			//	isZeroed = true;
+			//}
+			//else{
+			//	if(transform.localRotation.eulerAngles.y > 60f && transform.localRotation.eulerAngles.y < 80f)
+			//	{
+			//		transform.localRotation = Quaternion.Euler(0, 70f, 0);
+			//		wheelSender.SendWbrZero();
+			//		isZeroed = true;
+			//	}
+			//}
+			
 		}
 	}
 
@@ -74,7 +97,15 @@ public class MoveMotor : MonoBehaviour
 				canRotate();
 				if(fingersValid)
 				{
-					wheelSender.SanRotation(yAngle);	
+					if(globalValues.isDifferentialSteerMode)
+					{
+						wheelSender.SanRotation(yAngle);
+					}
+					else
+					{
+						wheelSender.WheelBasedRotation();
+					}
+						
 				}
 					
 			}
