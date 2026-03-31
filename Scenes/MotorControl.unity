@@ -48620,10 +48620,10 @@ MonoBehaviour:
   velMan2: {fileID: 1442233056}
   moveMotor1: {fileID: 102000962}
   moveMotor2: {fileID: 1517790781}
-  discoveredIp: 
   torqueText: {fileID: 277015371}
   torqueImage: {fileID: 802567633}
   degreeApplicator: {fileID: 311274737}
+  discoveredIp: 
 --- !u!1 &1949555340
 GameObject:
   m_ObjectHideFlags: 0
@@ -49340,7 +49340,7 @@ MonoBehaviour:
   discoveryPort: 5000
   discoveryTimeout: 5
   retryDelay: 2
-  jetsonIP: 100.87.21.117
+  jetsonIP: 100.111.168.25
   motor: {fileID: 1944943907}
   heart: {fileID: 1663621730}
 --- !u!1 &1978715269 stripped
