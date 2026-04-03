@@ -11,7 +11,7 @@ using System.Collections.Generic;
 public class MotorSending : MonoBehaviour
 {
 	private UdpClient udpClient;
-	private UdpClient _udpControlClient = new UdpClient(); // UDP for real-time commands
+	private UdpClient _udpControlClient = new UdpClient(5053); // UDP for real-time commands
 	private const int UDP_PORT = 5052;
 
 	private TcpClient tcpClient;
