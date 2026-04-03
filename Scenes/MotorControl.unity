@@ -2899,7 +2899,7 @@ MonoBehaviour:
   wheelBasedRotationDeadzone: 5
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 2
-  huitext: {fileID: 0}
+  uitext: {fileID: 0}
 --- !u!54 &102000977 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 8276674621469293554, guid: 2a6e8f5aa6891f5478468a9b5d73b3e0, type: 3}
@@ -14822,7 +14822,7 @@ MonoBehaviour:
   wheelBasedRotationDeadzone: 5
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 2
-  huitext: {fileID: 0}
+  uitext: {fileID: 0}
 --- !u!1 &558179040
 GameObject:
   m_ObjectHideFlags: 0
@@ -31602,7 +31602,7 @@ MonoBehaviour:
   wheelBasedRotationDeadzone: 0.5
   wheelBasedRotationMaxAmplitude: 2
   rotationMaxAmplitue: 100
-  huitext: {fileID: 1678517807}
+  uitext: {fileID: 0}
 --- !u!1 &1199240127
 GameObject:
   m_ObjectHideFlags: 0
@@ -34125,7 +34125,7 @@ MonoBehaviour:
   wheelBasedRotationDeadzone: 5
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 100
-  huitext: {fileID: 1678517807}
+  uitext: {fileID: 0}
 --- !u!1 &1332462790
 GameObject:
   m_ObjectHideFlags: 0
@@ -35893,7 +35893,7 @@ MonoBehaviour:
   wheelBasedRotationDeadzone: 5
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 2
-  huitext: {fileID: 0}
+  uitext: {fileID: 0}
 --- !u!1 &1403955403
 GameObject:
   m_ObjectHideFlags: 0
@@ -49675,7 +49675,7 @@ MonoBehaviour:
   discoveryPort: 5000
   discoveryTimeout: 5
   retryDelay: 2
-  jetsonIP: 100.87.21.117
+  jetsonIP: 100.111.168.25
   motor: {fileID: 1944943907}
   heart: {fileID: 1663621730}
 --- !u!1 &1978715269 stripped

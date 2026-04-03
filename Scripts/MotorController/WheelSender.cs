@@ -15,7 +15,7 @@ public class WheelSender : MonoBehaviour
 	public float wheelBasedRotationMaxAmplitude = 10.0f;
 	public float rotationMaxAmplitue = 2.0f;
 	
-	public TMPro.TMP_Text huitext;
+	public TMPro.TMP_Text uitext;
 	
 	private bool isZeroSend;
 	void Start()
@@ -43,14 +43,16 @@ public class WheelSender : MonoBehaviour
 	
 	public void SendZero()
 	{
-		sender.SendValues(0f, what, motor);
-		sender.SendValues(0f, "prot", motor);
+		//sender.SendValues(0f, what, motor);
+		//sender.SendValues(0f, "prot", motor);
+		sender.SendSan(0f, motor);
+		sender.SendProt(0f, motor);
 		prevAngle = 70f;
 		isZeroSend = true;
 	}
 	public void	SendWbrZero()
 	{
-		sender.SendValues(0f, "wbr", 0);
+		sender.SendWbr(0f, 0);
 	}
     
 	public void SanRotation(float directAngle)
@@ -60,7 +62,7 @@ public class WheelSender : MonoBehaviour
 		//if(Mathf.Abs(prevAngle - smoothedAngle) > rotationDeadzone && sender.isConnected)
 		//{
 		//	float sendingAngle = smoothedAngle - decreaseAngel;
-		//	huitext.text = smoothedAngle.ToString("F1");
+		//	uitext.text = smoothedAngle.ToString("F1");
 		//	sender.SendValues(sendingAngle, what, motor);
 		//	prevAngle = smoothedAngle;
 		//}
@@ -76,8 +78,9 @@ public class WheelSender : MonoBehaviour
 		if(Mathf.Abs(prevAngle - smoothedAngle) > rotationDeadzone && Mathf.Abs(prevAngle - smoothedAngle) < rotationMaxAmplitue && sender.isConnected)
 		{
 			float sendingAngle = smoothedAngle - decreaseAngel;
-			huitext.text = angle1.ToString("F1");
-			sender.SendValues(-sendingAngle, what, motor);
+			uitext.text = angle1.ToString("F1");
+			//sender.SendValues(-sendingAngle, what, motor);
+			sender.SendSan(-sendingAngle, motor);
 		}
 		prevAngle = angle1;
 	}
@@ -93,8 +96,9 @@ public class WheelSender : MonoBehaviour
 		if(Mathf.Abs(prevAngle - smoothedAngle) > wheelBasedRotationDeadzone && Mathf.Abs(prevAngle - smoothedAngle) < wheelBasedRotationMaxAmplitude && sender.isConnected)
 		{
 			float sendingAngle = smoothedAngle - decreaseAngel;
-			huitext.text = angle1.ToString("F1");
-			sender.SendValues(-sendingAngle, "wbr", 0);
+			uitext.text = angle1.ToString("F1");
+			//sender.SendValues(-sendingAngle, "wbr", 0);
+			sender.SendWbr(-sendingAngle, 0);
 		}
 		prevAngle = angle1;
 	}
@@ -111,8 +115,9 @@ public class WheelSender : MonoBehaviour
 		if(Mathf.Abs(prevAngle - smoothedAngle) > rotationDeadzone && Mathf.Abs(prevAngle - smoothedAngle) < rotationMaxAmplitue && sender.isConnected)
 		{
 			float sendingAngle = smoothedAngle - decreaseAngel;
-			huitext.text = sendingAngle.ToString("F1");
-			sender.SendValues(sendingAngle, "prot", motor);
+			uitext.text = sendingAngle.ToString("F1");
+			//sender.SendValues(sendingAngle, "prot", motor);
+			sender.SendProt(sendingAngle, motor);
 			
 		}
 		prevAngle = angle1;
@@ -120,6 +125,6 @@ public class WheelSender : MonoBehaviour
 	
 	public void printYAngle(float angle)
 	{
-		//huitext.text = angle.ToString("F1");
+		//uitext.text = angle.ToString("F1");
 	}
 }

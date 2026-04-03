@@ -55,7 +55,8 @@ public class TimeManagedLeverControl : MonoBehaviour
 			RPM_Text.text = "0";
 			if(!isStopped)
 			{
-				sender.SendValues(0f, "speed", motorId);
+				//sender.SendValues(0f, "speed", motorId);
+				sender.SendSpeed(0f, motorId);
 				isStopped = true;
 			}
 		}
@@ -155,7 +156,8 @@ public class TimeManagedLeverControl : MonoBehaviour
 		lever.localEulerAngles = newEuler;
 		float speedToSend = newAngle * coef;
 		RPM_Text.text = speedToSend.ToString("F1");
-		sender.SendValues(speedToSend, "speed", motorId);
+		//sender.SendValues(speedToSend, "speed", motorId);
+		sender.SendSpeed(speedToSend, motorId);
 		previousHandPos = currentHandPos;
 		
 	}
