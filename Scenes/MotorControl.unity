@@ -49675,7 +49675,7 @@ MonoBehaviour:
   discoveryPort: 5000
   discoveryTimeout: 5
   retryDelay: 2
-  jetsonIP: 100.111.168.25
+  jetsonIP: 100.87.21.117
   motor: {fileID: 1944943907}
   heart: {fileID: 1663621730}
 --- !u!1 &1978715269 stripped
