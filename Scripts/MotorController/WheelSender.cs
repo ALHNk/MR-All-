@@ -45,10 +45,13 @@ public class WheelSender : MonoBehaviour
 	{
 		//sender.SendValues(0f, what, motor);
 		//sender.SendValues(0f, "prot", motor);
-		sender.SendSan(0f, motor);
-		sender.SendProt(0f, motor);
+		//sender.SendSan(0f, motor);
+		//sender.SendProt(0f, motor);
+		sender.SetPacketSan(0f);
+		sender.SetPacketProt(0f);
 		prevAngle = 70f;
 		isZeroSend = true;
+		uitext.text = "0";
 	}
 	public void	SendWbrZero()
 	{
@@ -80,7 +83,8 @@ public class WheelSender : MonoBehaviour
 			float sendingAngle = smoothedAngle - decreaseAngel;
 			uitext.text = angle1.ToString("F1");
 			//sender.SendValues(-sendingAngle, what, motor);
-			sender.SendSan(-sendingAngle, motor);
+			//sender.SendSan(-sendingAngle, motor);
+			sender.SetPacketSan(-sendingAngle);
 		}
 		prevAngle = angle1;
 	}
@@ -117,7 +121,8 @@ public class WheelSender : MonoBehaviour
 			float sendingAngle = smoothedAngle - decreaseAngel;
 			uitext.text = sendingAngle.ToString("F1");
 			//sender.SendValues(sendingAngle, "prot", motor);
-			sender.SendProt(sendingAngle, motor);
+			//sender.SendProt(sendingAngle, motor);
+			sender.SetPacketProt(sendingAngle);
 			
 		}
 		prevAngle = angle1;

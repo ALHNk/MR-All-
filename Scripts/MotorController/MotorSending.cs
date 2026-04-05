@@ -7,6 +7,19 @@ using TMPro;
 using UnityEngine.UI;
 using System.Threading;
 using System.Collections.Generic;
+using System.Net;
+using System;
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ControlUDPPacket
+{
+	public float speed;
+	public float san;
+	public float prot;
+	//public float wbr;	
+	public byte motor_id;	
+}
 
 public class MotorSending : MonoBehaviour
 {
@@ -31,7 +44,7 @@ public class MotorSending : MonoBehaviour
 	
 	public MoveMotor moveMotor1, moveMotor2;
 	
-	private string staticIP = "10.39.129.122";
+	private string staticIP = "10.35.97.217";
 	public string discoveredIp = "";
 	
 	private bool isTorqueOn = false;
@@ -43,6 +56,8 @@ public class MotorSending : MonoBehaviour
 	private readonly object _queueLock = new object();
 	private Thread _readThread;
 	
+	private ControlUDPPacket udpPacket = new ControlUDPPacket();
+	private IPEndPoint ep;
 	
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	void Start()
@@ -52,6 +67,7 @@ public class MotorSending : MonoBehaviour
 		{
 			degreeApplicator = FindObjectOfType<ChangeDegrees>();
 		}
+		Connect();
 	}
 
 	public void OpenKeyBoard()
@@ -101,7 +117,9 @@ public class MotorSending : MonoBehaviour
 			if (motorStatus.status == "accepted")
 			{
 				isConnected = true;
-				_udpControlClient.Connect(ip, UDP_PORT);
+				//_udpControlClient.Connect(ip, UDP_PORT);
+				ep = new IPEndPoint(IPAddress.Parse(ip), UDP_PORT);
+				
 				if(velMan1 != null)
 				{
 					velMan1.SetVelocityCome(motorStatus.motor1velocity);
@@ -174,6 +192,8 @@ public class MotorSending : MonoBehaviour
 				}
 			}
 		}
+		
+		SendValuesUDP();
 	}
     
 	public string TakeSecret()
@@ -191,22 +211,39 @@ public class MotorSending : MonoBehaviour
 	public void SendValues(float value, string what, int motorId)
 	{
 		if(isTCP) SendValuesTCP(value, what, motorId);
-		else SendValuesUDP(value, what, motorId);
+		//else SendValuesUDP(value, what, motorId);
 	}
     
-	private void SendValuesUDP(float value, string what, int motorId)
+	private void SendValuesUDP()
 	{
-		string msg = "motor:" + motorId +what + ":" + value.ToString("F2") + "\n";
-		byte[] data = Encoding.ASCII.GetBytes(msg);
-		string ip = "";
-		if(ipField.text == "") 
+		if(!isConnected)
 		{
-			ip = staticIP;
+			return;
 		}
-		else ip = ipField.text;
 		
-		udpClient.Send(data, data.Length, ip, 5000); 
+		Debug.Log("UNITY SALIH: SENDING UDP");
+		int size = Marshal.SizeOf(udpPacket);
+		byte[] buffer = new byte[size];
+		IntPtr ptr = Marshal.AllocHGlobal(size);
+		Marshal.StructureToPtr(udpPacket, ptr, true);
+		Marshal.Copy(ptr, buffer, 0, size);
+		Marshal.FreeHGlobal(ptr);
+		
+		_udpControlClient.Send(buffer, buffer.Length, ep);
 	}
+	//private void SendValuesUDP(float value, string what, int motorId)
+	//{
+	//	string msg = "motor:" + motorId +what + ":" + value.ToString("F2") + "\n";
+	//	byte[] data = Encoding.ASCII.GetBytes(msg);
+	//	string ip = "";
+	//	if(ipField.text == "") 
+	//	{
+	//		ip = staticIP;
+	//	}
+	//	else ip = ipField.text;
+		
+	//	udpClient.Send(data, data.Length, ip, 5000); 
+	//}
 
 	private void SendValuesTCP(float value, string what, int motorId)
 	{
@@ -293,6 +330,19 @@ public class MotorSending : MonoBehaviour
 
 	// ─────────────────────────────────────────────────────────────────────────
 
+	public void SetPacketSpeed(float speed)
+	{
+		udpPacket.speed = speed;
+	}
+	public void SetPacketSan(float san)
+	{
+		udpPacket.speed = san;
+	}
+	public void SetPacketProt(float prot)
+	{
+		udpPacket.speed = prot;
+	}
+	
 	// Sent to all game objects before the application is quit.
 	protected void OnApplicationQuit()
 	{

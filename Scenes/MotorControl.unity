@@ -31602,7 +31602,7 @@ MonoBehaviour:
   wheelBasedRotationDeadzone: 0.5
   wheelBasedRotationMaxAmplitude: 2
   rotationMaxAmplitue: 100
-  uitext: {fileID: 0}
+  uitext: {fileID: 1678517807}
 --- !u!1 &1199240127
 GameObject:
   m_ObjectHideFlags: 0

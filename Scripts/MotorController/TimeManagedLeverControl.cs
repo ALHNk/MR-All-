@@ -56,7 +56,8 @@ public class TimeManagedLeverControl : MonoBehaviour
 			if(!isStopped)
 			{
 				//sender.SendValues(0f, "speed", motorId);
-				sender.SendSpeed(0f, motorId);
+				//sender.SendSpeed(0f, motorId);
+				sender.SetPacketSpeed(0f);
 				isStopped = true;
 			}
 		}
@@ -157,7 +158,8 @@ public class TimeManagedLeverControl : MonoBehaviour
 		float speedToSend = newAngle * coef;
 		RPM_Text.text = speedToSend.ToString("F1");
 		//sender.SendValues(speedToSend, "speed", motorId);
-		sender.SendSpeed(speedToSend, motorId);
+		//sender.SendSpeed(speedToSend, motorId);
+		sender.SetPacketSpeed(speedToSend);
 		previousHandPos = currentHandPos;
 		
 	}
