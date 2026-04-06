@@ -67,7 +67,16 @@ public class MotorSending : MonoBehaviour
 		{
 			degreeApplicator = FindObjectOfType<ChangeDegrees>();
 		}
+		SetPacketZero();
+		udpPacket.motor_id = 2;
 		Connect();
+	}
+	
+	public void SetPacketZero()
+	{
+		udpPacket.speed = 0f;
+		udpPacket.san = 0f;
+		udpPacket.prot = 0f;
 	}
 
 	public void OpenKeyBoard()
@@ -117,7 +126,7 @@ public class MotorSending : MonoBehaviour
 			if (motorStatus.status == "accepted")
 			{
 				isConnected = true;
-				//_udpControlClient.Connect(ip, UDP_PORT);
+				_udpControlClient.Connect(ip, UDP_PORT);
 				ep = new IPEndPoint(IPAddress.Parse(ip), UDP_PORT);
 				
 				if(velMan1 != null)
@@ -221,7 +230,7 @@ public class MotorSending : MonoBehaviour
 			return;
 		}
 		
-		Debug.Log("UNITY SALIH: SENDING UDP");
+		
 		int size = Marshal.SizeOf(udpPacket);
 		byte[] buffer = new byte[size];
 		IntPtr ptr = Marshal.AllocHGlobal(size);
@@ -229,7 +238,8 @@ public class MotorSending : MonoBehaviour
 		Marshal.Copy(ptr, buffer, 0, size);
 		Marshal.FreeHGlobal(ptr);
 		
-		_udpControlClient.Send(buffer, buffer.Length, ep);
+		_udpControlClient.Send(buffer, buffer.Length);
+		Debug.Log("UNITY SALIH: SENDING UDP to " + ep.ToString());
 	}
 	//private void SendValuesUDP(float value, string what, int motorId)
 	//{
