@@ -17,8 +17,10 @@ struct ControlUDPPacket
 	public float speed;
 	public float san;
 	public float prot;
-	//public float wbr;	
 	public byte motor_id;	
+	public byte pad1;
+	public byte pad2;
+	public byte pad3;
 }
 
 public class MotorSending : MonoBehaviour
@@ -44,7 +46,7 @@ public class MotorSending : MonoBehaviour
 	
 	public MoveMotor moveMotor1, moveMotor2;
 	
-	private string staticIP = "10.35.97.217";
+	private string staticIP = "10.35.97.23";
 	public string discoveredIp = "";
 	
 	private bool isTorqueOn = false;
@@ -236,10 +238,11 @@ public class MotorSending : MonoBehaviour
 		IntPtr ptr = Marshal.AllocHGlobal(size);
 		Marshal.StructureToPtr(udpPacket, ptr, true);
 		Marshal.Copy(ptr, buffer, 0, size);
+		Debug.Log("UNITY SALIH:  " + Marshal.SizeOf(udpPacket));
 		Marshal.FreeHGlobal(ptr);
 		
 		_udpControlClient.Send(buffer, buffer.Length);
-		Debug.Log("UNITY SALIH: SENDING UDP to " + ep.ToString());
+		
 	}
 	//private void SendValuesUDP(float value, string what, int motorId)
 	//{
@@ -346,11 +349,11 @@ public class MotorSending : MonoBehaviour
 	}
 	public void SetPacketSan(float san)
 	{
-		udpPacket.speed = san;
+		udpPacket.san = san;
 	}
 	public void SetPacketProt(float prot)
 	{
-		udpPacket.speed = prot;
+		udpPacket.prot = prot;
 	}
 	
 	// Sent to all game objects before the application is quit.
