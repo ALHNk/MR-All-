@@ -46,7 +46,7 @@ public class MotorSending : MonoBehaviour
 	
 	public MoveMotor moveMotor1, moveMotor2;
 	
-	private string staticIP = "10.35.97.23";
+	private string staticIP = "10.35.97.217";
 	public string discoveredIp = "";
 	
 	private bool isTorqueOn = false;
@@ -72,6 +72,7 @@ public class MotorSending : MonoBehaviour
 		SetPacketZero();
 		udpPacket.motor_id = 2;
 		Connect();
+		
 	}
 	
 	public void SetPacketZero()
@@ -130,7 +131,7 @@ public class MotorSending : MonoBehaviour
 				isConnected = true;
 				_udpControlClient.Connect(ip, UDP_PORT);
 				ep = new IPEndPoint(IPAddress.Parse(ip), UDP_PORT);
-				
+				StartCoroutine(SendUdpCourutine());
 				if(velMan1 != null)
 				{
 					velMan1.SetVelocityCome(motorStatus.motor1velocity);
@@ -204,7 +205,13 @@ public class MotorSending : MonoBehaviour
 			}
 		}
 		
+		
+	}
+	
+	public IEnumerator SendUdpCourutine()
+	{
 		SendValuesUDP();
+		yield return new WaitForSeconds(0.1f);
 	}
     
 	public string TakeSecret()
