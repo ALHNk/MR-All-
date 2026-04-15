@@ -2900,6 +2900,7 @@ MonoBehaviour:
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 2
   uitext: {fileID: 0}
+  lever: {fileID: 0}
 --- !u!54 &102000977 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 8276674621469293554, guid: 2a6e8f5aa6891f5478468a9b5d73b3e0, type: 3}
@@ -9336,7 +9337,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.22023034, a: 1}
+  m_Color: {r: 0, g: 0.5372549, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14823,6 +14824,7 @@ MonoBehaviour:
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 2
   uitext: {fileID: 0}
+  lever: {fileID: 0}
 --- !u!1 &558179040
 GameObject:
   m_ObjectHideFlags: 0
@@ -17725,7 +17727,7 @@ MonoBehaviour:
   rightHand: {fileID: 45831378}
   leftHand: {fileID: 955803911}
   lever: {fileID: 999687902}
-  maxAllowedHandSpeed: 0.7
+  maxAllowedHandSpeed: 10
   rotationSpeed: 100
   minRotation: -56.15
   maxRotation: 56.15
@@ -17735,6 +17737,7 @@ MonoBehaviour:
   motorId: 2
   rightGrip: {fileID: 1643476200}
   allowenceMaterial: {fileID: 2100000, guid: e6d5f11e7e14ceb4e83f6eb71d5a7722, type: 2}
+  isLeverMoving: 0
 --- !u!1 &653375682
 GameObject:
   m_ObjectHideFlags: 0
@@ -20745,6 +20748,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 768505637}
   m_CullTransparentMesh: 1
+--- !u!1 &773190229
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 773190230}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &773190230
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 773190229}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.3788064, y: 1.3471441, z: -0.58355415}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &774471488
 GameObject:
   m_ObjectHideFlags: 0
@@ -21124,6 +21158,7 @@ MonoBehaviour:
   motorId: 2
   rightGrip: {fileID: 357845069}
   allowenceMaterial: {fileID: 2100000, guid: e6d5f11e7e14ceb4e83f6eb71d5a7722, type: 2}
+  isLeverMoving: 0
 --- !u!136 &787124044
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -21287,7 +21322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.22023034, a: 1}
+  m_Color: {r: 0, g: 0.5368476, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -31603,6 +31638,7 @@ MonoBehaviour:
   wheelBasedRotationMaxAmplitude: 2
   rotationMaxAmplitue: 100
   uitext: {fileID: 1678517807}
+  lever: {fileID: 0}
 --- !u!1 &1199240127
 GameObject:
   m_ObjectHideFlags: 0
@@ -34126,6 +34162,7 @@ MonoBehaviour:
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 100
   uitext: {fileID: 0}
+  lever: {fileID: 0}
 --- !u!1 &1332462790
 GameObject:
   m_ObjectHideFlags: 0
@@ -35894,6 +35931,7 @@ MonoBehaviour:
   wheelBasedRotationMaxAmplitude: 10
   rotationMaxAmplitue: 2
   uitext: {fileID: 0}
+  lever: {fileID: 0}
 --- !u!1 &1403955403
 GameObject:
   m_ObjectHideFlags: 0
@@ -48878,7 +48916,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1944943902}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3324e91b5cb26d54987cac83783ad10f, type: 3}
   m_Name: 
@@ -49675,9 +49713,11 @@ MonoBehaviour:
   discoveryPort: 5000
   discoveryTimeout: 5
   retryDelay: 2
-  jetsonIP: 100.111.168.25
+  jetsonIP: 192.168.0.111
   motor: {fileID: 1944943907}
   heart: {fileID: 1663621730}
+  connectImage: {fileID: 333809815}
+  connectText: {fileID: 378575044}
 --- !u!1 &1978715269 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3667659325178410851, guid: 59f8b4917ef90c5469c8e1d252c0159c, type: 3}
@@ -54368,3 +54408,4 @@ SceneRoots:
   - {fileID: 598226214}
   - {fileID: 1950277703}
   - {fileID: 1897938116}
+  - {fileID: 773190230}

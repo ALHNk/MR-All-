@@ -18,11 +18,17 @@ public class WheelSender : MonoBehaviour
 	public TMPro.TMP_Text uitext;
 	
 	private bool isZeroSend;
+	
+	public TimeManagedLeverControl lever;
 	void Start()
 	{
 		if(sender == null)
 		{
 			sender = FindObjectOfType<MotorSending>();
+		}
+		if(lever == null)
+		{
+			lever = FindObjectOfType<TimeManagedLeverControl>();
 		}
 	}
 
@@ -122,7 +128,11 @@ public class WheelSender : MonoBehaviour
 			uitext.text = sendingAngle.ToString("F1");
 			//sender.SendValues(sendingAngle, "prot", motor);
 			//sender.SendProt(sendingAngle, motor);
-			sender.SetPacketProt(sendingAngle);
+			if(lever.isLeverMoving == false)
+			{
+				sender.SetPacketProt(sendingAngle);
+			}
+			
 			
 		}
 		prevAngle = angle1;

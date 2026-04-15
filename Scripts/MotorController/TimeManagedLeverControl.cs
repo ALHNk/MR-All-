@@ -35,6 +35,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 	private bool isStopped;
 	
 	public Material allowenceMaterial;
+	public bool isLeverMoving = false;
 	
 		
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
@@ -47,7 +48,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 	{
 		float currentAngle = lever.eulerAngles.z;
 		if(currentAngle >180f) currentAngle -= 360f;
-		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (10.0f/coef) && currentAngle >(-10.0f/coef)))
+		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (8.0f/coef) && currentAngle >(-8.0f/coef)))
 		{
 			Vector3 newEuler = lever.localEulerAngles;
 			newEuler.z = 0f;
@@ -59,6 +60,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 				//sender.SendSpeed(0f, motorId);
 				sender.SetPacketSpeed(0f);
 				isStopped = true;
+				isLeverMoving = false;
 			}
 		}
 		else{
@@ -132,10 +134,14 @@ public class TimeManagedLeverControl : MonoBehaviour
 		Vector3 currentHandPos = hand.position;
 		
 
-		float handSpeed = Vector3.Distance(currentHandPos, previousHandPos) / Time.deltaTime;
-						
-		if (handSpeed > maxAllowedHandSpeed)
+		float smoothedHandSpeed = 0f;
+
+		float rawHandSpeed = Vector3.Distance(currentHandPos, previousHandPos) / Time.deltaTime;
+		smoothedHandSpeed = Mathf.Lerp(smoothedHandSpeed, rawHandSpeed, 0.3f);
+
+		if (smoothedHandSpeed > maxAllowedHandSpeed)
 		{
+			previousHandPos = currentHandPos;
 			return;
 		}
 		
@@ -145,11 +151,11 @@ public class TimeManagedLeverControl : MonoBehaviour
 		Vector3 localDelta = currentLocal - previousLocal;
 
 		
-		float movement = -localDelta.x;	
+		float movement = (-localDelta.x / Time.deltaTime) * (1f/60f);
 
 		float currentAngle = lever.localEulerAngles.z;
 		if (currentAngle > 180f) currentAngle -= 360f; 
-
+		isLeverMoving = true;
 		float newAngle = Mathf.Clamp(currentAngle + movement * rotationSpeed, minRotation, maxRotation);
 		
 		Vector3 newEuler = lever.localEulerAngles;

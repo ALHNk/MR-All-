@@ -42,13 +42,8 @@ public class GetVideo : MonoBehaviour
 		{
 			materialInstance = Instantiate(display);
 			GetComponent<Renderer>().material = materialInstance;
-			Debug.Log($"{gameObject.name}: Created material instance");
 		}
-		else
-		{
-			Debug.LogError($"{gameObject.name}: Display material not assigned!");
-		}
-        
+
 		inputTexture = new Texture2D(2, 2, TextureFormat.RGB24, false);
 		outputTexture = null;
         
@@ -56,7 +51,6 @@ public class GetVideo : MonoBehaviour
 		{
 			udpClient = new UdpClient(port);
 			udpClient.Client.ReceiveBufferSize = 5 * 1024 * 1024;
-			Debug.Log($"{gameObject.name}: Listening on port {port}, waiting for discovery...");
 		}
 			catch (Exception e)
 			{
@@ -90,7 +84,6 @@ public class GetVideo : MonoBehaviour
 		if (isConnected && !threadStarted)
 		{
 			threadStarted = true;
-			Debug.Log($"{gameObject.name}: Discovery complete, starting receive thread");
 			Thread t = new Thread(ReceiveLoop);
 			t.IsBackground = true;
 			t.Start();
@@ -292,6 +285,37 @@ public class GetVideo : MonoBehaviour
 		{
 			Debug.LogWarning($"{gameObject.name}: Bad JPEG frame");
 		}
+	}
+	public void ConnectUDP()
+	{
+		try
+		{
+			udpClient = new UdpClient(port);
+			udpClient.Client.ReceiveBufferSize = 5 * 1024 * 1024;
+		}
+			catch (Exception e)
+			{
+				Debug.LogError($"{gameObject.name}: Failed to bind to port {port}: {e.Message}");
+				return;
+			}
+	}
+	public void Disconnect()
+	{
+		if (!isConnected) return;
+
+		isConnected = false;       // signals ReceiveLoop to stop
+		threadStarted = false;     // allow reconnect later
+
+		// Unblocks udpClient.Receive() — throws SocketException on the thread,
+		// which is caught and silently ignored because isConnected is now false
+		udpClient?.Close();
+		udpClient = null;
+		lock (queueLock) { queue.Clear(); }   
+		frameChunks.Clear();                   
+		frameTotalChunks.Clear();
+
+		Debug.Log($"{gameObject.name}: Disconnected");
+		
 	}
 	
 	//for testing only
@@ -520,16 +544,7 @@ public class GetVideo : MonoBehaviour
 
 //		inputTexture = new Texture2D(2, 2, TextureFormat.RGB24, false);
 
-//		try
-//		{
-//			udpClient = new UdpClient(port);
-//			udpClient.Client.ReceiveBufferSize = 5 * 1024 * 1024;
-//		}
-//			catch (Exception e)
-//			{
-//				Debug.LogError($"{gameObject.name}: Failed to bind to port {port}: {e.Message}");
-//				return;
-//			}
+//		ConnectUDP();
 
 //			// Open log file
 //		logPath = Path.Combine(Application.persistentDataPath,
@@ -697,6 +712,51 @@ public class GetVideo : MonoBehaviour
 //		{
 //			Debug.LogWarning($"{gameObject.name}: Bad JPEG frame");
 //		}
+//	}
+//	public void ConnectUDP()
+//	{
+//		try
+//		{
+//			udpClient = new UdpClient(port);
+//			udpClient.Client.ReceiveBufferSize = 5 * 1024 * 1024;
+//		}
+//			catch (Exception e)
+//			{
+//				Debug.LogError($"{gameObject.name}: Failed to bind to port {port}: {e.Message}");
+//				return;
+//			}
+//	}
+//	public void Disconnect()
+//	{
+//		if (!isConnected) return;
+
+//		isConnected = false;       // signals ReceiveLoop to stop
+//		threadStarted = false;     // allow reconnect later
+
+//		// Unblocks udpClient.Receive() — throws SocketException on the thread,
+//		// which is caught and silently ignored because isConnected is now false
+//		udpClient?.Close();
+//		udpClient = null;
+
+//		// Clear the frame reassembly state
+//		lock (queueLock)
+//		{
+//			queue.Clear();
+//		}
+//		frameChunks.Clear();
+//		frameTotalChunks.Clear();
+//		frameFirstChunkTime.Clear();
+
+//		// Reset metrics if desired
+//		totalFramesDropped = 0;
+//		totalQueueDrops = 0;
+//		totalFramesDecoded = 0;
+//		totalBytesReceived = 0;
+//		fpsTimer = 0f;
+//		framesThisSecond = 0;
+
+//		Debug.Log($"{gameObject.name}: Disconnected");
+		
 //	}
 
 //	private void WriteLog(string eventName, float fps, long frameSize, long reassemblyMs)

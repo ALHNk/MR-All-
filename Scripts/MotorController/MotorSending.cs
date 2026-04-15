@@ -61,6 +61,8 @@ public class MotorSending : MonoBehaviour
 	private ControlUDPPacket udpPacket = new ControlUDPPacket();
 	private IPEndPoint ep;
 	
+	private byte[] _udpSendBuffer;
+	
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	void Start()
 	{
@@ -71,8 +73,8 @@ public class MotorSending : MonoBehaviour
 		}
 		SetPacketZero();
 		udpPacket.motor_id = 2;
-		Connect();
 		
+		_udpSendBuffer = new byte[Marshal.SizeOf(typeof(ControlUDPPacket))];
 	}
 	
 	public void SetPacketZero()
@@ -199,7 +201,7 @@ public class MotorSending : MonoBehaviour
 				else if(msg.Equals("off") || msg.Equals("off\n"))
 				{
 					isTorqueOn = false;
-					torqueImage.color = Color.blue;
+					torqueImage.color = Color.red;
 					torqueText.text = "Torqued off";
 				}
 			}
@@ -210,8 +212,12 @@ public class MotorSending : MonoBehaviour
 	
 	public IEnumerator SendUdpCourutine()
 	{
-		SendValuesUDP();
-		yield return new WaitForSeconds(0.1f);
+		while(true)
+		{
+			SendValuesUDP();
+			yield return new WaitForSecondsRealtime(0.02f);
+		}
+		
 	}
     
 	public string TakeSecret()
@@ -234,21 +240,16 @@ public class MotorSending : MonoBehaviour
     
 	private void SendValuesUDP()
 	{
-		if(!isConnected)
+		if (!isConnected)
 		{
 			return;
 		}
-		
-		
-		int size = Marshal.SizeOf(udpPacket);
-		byte[] buffer = new byte[size];
-		IntPtr ptr = Marshal.AllocHGlobal(size);
+    
+		IntPtr ptr = Marshal.AllocHGlobal(_udpSendBuffer.Length);
 		Marshal.StructureToPtr(udpPacket, ptr, true);
-		Marshal.Copy(ptr, buffer, 0, size);
-		Debug.Log("UNITY SALIH:  " + Marshal.SizeOf(udpPacket));
+		Marshal.Copy(ptr, _udpSendBuffer, 0, _udpSendBuffer.Length);
 		Marshal.FreeHGlobal(ptr);
-		
-		_udpControlClient.Send(buffer, buffer.Length);
+		_udpControlClient.Send(_udpSendBuffer, _udpSendBuffer.Length);
 		
 	}
 	//private void SendValuesUDP(float value, string what, int motorId)
@@ -361,6 +362,18 @@ public class MotorSending : MonoBehaviour
 	public void SetPacketProt(float prot)
 	{
 		udpPacket.prot = prot;
+	}
+	
+	public void DisconnectMotors()
+	{
+		isConnected = false;        // stops SendValuesUDP guard + ReadLoop
+		StopAllCoroutines();        // stops SendUdpCoroutine
+		udpClient?.Close();
+		_udpControlClient = new UdpClient(); // reset for reconnect
+		tcpClient?.Close();
+		stream?.Close();
+		stream = null;
+		tcpClient = null;
 	}
 	
 	// Sent to all game objects before the application is quit.
