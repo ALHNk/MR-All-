@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections;
 using System.Text;
+using UnityEngine.UI;
 
 public class Discover : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class Discover : MonoBehaviour
 	public MotorSending motor;
 	public TCPHeartbeat heart;
 	private bool isConnected = false;
+	
+	public Image connectImage;
+	public TMPro.TMP_Text connectText;
 
 	void Start()
 	{
@@ -26,7 +30,14 @@ public class Discover : MonoBehaviour
 	public void DiscoverStart()
 	{
 		if (!isConnected)
+		{
 			StartCoroutine(DiscoverAndConnect());
+		}
+			
+		else
+		{
+			CloseAllConnections();
+		}
 	}
 
 	IEnumerator DiscoverAndConnect()
@@ -63,6 +74,7 @@ public class Discover : MonoBehaviour
 					if (streamer != null)
 					{
 						streamer.host = discoveredHost;
+						streamer.ConnectUDP();
 						streamer.isConnected = true;
 					}
 				}
@@ -76,6 +88,8 @@ public class Discover : MonoBehaviour
 				// TCPHeartbeat is already listening from its Start()
 
 				isConnected = true;
+				connectImage.color = Color.green;
+				connectText.text = "Coned";
 			}
 			else
 			{
@@ -99,6 +113,23 @@ public class Discover : MonoBehaviour
 
 		discoveryClient?.Close();
 		discoveryClient = null;
+	}
+	
+	public void CloseAllConnections()
+	{
+		foreach (GetVideo streamer in streamers)
+		{
+			if (streamer != null)
+			{
+				streamer.Disconnect();
+			}
+		}
+		motor.DisconnectMotors();
+		discoveryClient?.Close();
+		heart.Disconnect();
+		isConnected = false;
+		connectImage.color = Color.red;
+		connectText.text = "Disconed";
 	}
 
 	void OnDestroy()

@@ -35,6 +35,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 	private bool isStopped;
 	
 	public Material allowenceMaterial;
+	public bool isLeverMoving = false;
 	
 		
 	// Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
@@ -45,9 +46,17 @@ public class TimeManagedLeverControl : MonoBehaviour
 	// Update is called every frame, if the MonoBehaviour is enabled.
 	protected void Update()
 	{
+		//if(!isStopped)
+		//{
+		//	if(grabInt.State == InteractableState.Normal)
+		//	{
+		//		allowenceMaterial.color = new Color(1f, 0f, 0f);
+		//		isStopped = true;
+		//	}
+		//}
 		float currentAngle = lever.eulerAngles.z;
 		if(currentAngle >180f) currentAngle -= 360f;
-		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (10.0f/coef) && currentAngle >(-10.0f/coef)))
+		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (8.0f/coef) && currentAngle >(-8.0f/coef)))
 		{
 			Vector3 newEuler = lever.localEulerAngles;
 			newEuler.z = 0f;
@@ -55,13 +64,18 @@ public class TimeManagedLeverControl : MonoBehaviour
 			RPM_Text.text = "0";
 			if(!isStopped)
 			{
-				sender.SendValues(0f, "speed", motorId);
+				//sender.SendValues(0f, "speed", motorId);
+				//sender.SendSpeed(0f, motorId);
+				sender.SetPacketSpeed(0f);
 				isStopped = true;
+				isLeverMoving = false;
+				allowenceMaterial.color = new Color(1f, 0f, 0f);
 			}
 		}
 		else{
 			isStopped = false;
 		}
+		canRotate();
 	}
 	
 	protected void OnTriggerStay(Collider other)
@@ -75,7 +89,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 			if(other.CompareTag("FingerLeft2")) fingerLeft2 = true;
 			if(other.CompareTag("FingerLeft3")) fingerLeft3 = true;
 			
-			canRotate();
+			//canRotate();
 			//RotateByHand(true);
 		}
 		
@@ -85,12 +99,15 @@ public class TimeManagedLeverControl : MonoBehaviour
 	private void canRotate()
 	{
 		
-		if((!fingerRight1 || !fingerRight2 || !fingerRight3) && (!fingerLeft1 || !fingerLeft2 || !fingerLeft3))
+		//if((!fingerRight1 || !fingerRight2 || !fingerRight3) && (!fingerLeft1 || !fingerLeft2 || !fingerLeft3))
+		//{
+		//	isFirst = true;
+		//	return;
+		//}
+		if(grabInt.State != InteractableState.Select)
 		{
-			isFirst = true;
 			return;
 		}
-		
 		if(isFirst)
 		{
 			allowenceMaterial.color = new Color(0f, 1f, 0f);
@@ -130,10 +147,15 @@ public class TimeManagedLeverControl : MonoBehaviour
 		Vector3 currentHandPos = hand.position;
 		
 
-		float handSpeed = Vector3.Distance(currentHandPos, previousHandPos) / Time.deltaTime;
-						
-		if (handSpeed > maxAllowedHandSpeed)
+		float smoothedHandSpeed = 0f;
+
+		float rawHandSpeed = Vector3.Distance(currentHandPos, previousHandPos) / Time.deltaTime;
+		smoothedHandSpeed = Mathf.Lerp(smoothedHandSpeed, rawHandSpeed, 0.3f);
+
+		if (smoothedHandSpeed > maxAllowedHandSpeed)
 		{
+			previousHandPos = currentHandPos;
+			ReleaseHands();
 			return;
 		}
 		
@@ -143,11 +165,11 @@ public class TimeManagedLeverControl : MonoBehaviour
 		Vector3 localDelta = currentLocal - previousLocal;
 
 		
-		float movement = -localDelta.x;	
+		float movement = (-localDelta.x / Time.deltaTime) * (1f/60f);
 
 		float currentAngle = lever.localEulerAngles.z;
 		if (currentAngle > 180f) currentAngle -= 360f; 
-
+		isLeverMoving = true;
 		float newAngle = Mathf.Clamp(currentAngle + movement * rotationSpeed, minRotation, maxRotation);
 		
 		Vector3 newEuler = lever.localEulerAngles;
@@ -155,7 +177,9 @@ public class TimeManagedLeverControl : MonoBehaviour
 		lever.localEulerAngles = newEuler;
 		float speedToSend = newAngle * coef;
 		RPM_Text.text = speedToSend.ToString("F1");
-		sender.SendValues(speedToSend, "speed", motorId);
+		//sender.SendValues(speedToSend, "speed", motorId);
+		//sender.SendSpeed(speedToSend, motorId);
+		sender.SetPacketSpeed(speedToSend);
 		previousHandPos = currentHandPos;
 		
 	}
@@ -178,6 +202,16 @@ public class TimeManagedLeverControl : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
-		allowenceMaterial.color = new Color(1f, 0f, 0f);
+		//allowenceMaterial.color = new Color(1f, 0f, 0f);
+	}
+	protected void ReleaseHands()
+	{
+		if(grabInt.SelectingInteractors.Count > 0)
+		{
+			foreach(var interactor in grabInt.SelectingInteractors)
+			{
+				interactor.Unselect();
+			}
+		}
 	}
 }

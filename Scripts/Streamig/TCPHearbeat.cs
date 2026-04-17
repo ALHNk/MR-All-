@@ -78,11 +78,22 @@ public class TCPHeartbeat : MonoBehaviour
 		}
 	}
 
-	void OnDestroy() => Disconnect();
-	void OnApplicationQuit() => Disconnect();
-	void OnApplicationPause(bool pause) { if (pause) Disconnect(); }
+	void OnDestroy() => Shutdown();
+	void OnApplicationQuit() => Shutdown();
 
 	public void Disconnect()
+	{
+		isConnected = false;
+		// Don't set isRunning = false here — let the loop keep listening
+		try { stream?.Close(); } catch {}
+		try { tcpClient?.Close(); } catch {}
+		try { listener?.Stop(); } catch {}
+		stream = null;
+		tcpClient = null;
+	}
+
+	// Only called on actual app quit/destroy
+	public void Shutdown()
 	{
 		isRunning = false;
 		isConnected = false;
@@ -91,4 +102,5 @@ public class TCPHeartbeat : MonoBehaviour
 		try { listener?.Stop(); } catch {}
 		listenThread?.Join(1000);
 	}
+	
 }

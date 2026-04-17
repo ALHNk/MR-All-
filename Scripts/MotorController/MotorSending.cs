@@ -5,9 +5,30 @@ using System.Text;
 using Newtonsoft.Json;
 using TMPro;
 using UnityEngine.UI;
+using System.Threading;
+using System.Collections.Generic;
+using System.Net;
+using System;
+using System.Runtime.InteropServices;
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct ControlUDPPacket
+{
+	public float speed;
+	public float san;
+	public float prot;
+	public byte motor_id;	
+	public byte pad1;
+	public byte pad2;
+	public byte pad3;
+}
+
 public class MotorSending : MonoBehaviour
 {
 	private UdpClient udpClient;
+	private UdpClient _udpControlClient = new UdpClient(); // UDP for real-time commands
+	private const int UDP_PORT = 5052;
+
 	private TcpClient tcpClient;
 	private NetworkStream stream;
 	public GameObject motorSim;
@@ -25,7 +46,7 @@ public class MotorSending : MonoBehaviour
 	
 	public MoveMotor moveMotor1, moveMotor2;
 	
-	private string staticIP = "10.39.129.122";
+	private string staticIP = "10.35.97.217";
 	public string discoveredIp = "";
 	
 	private bool isTorqueOn = false;
@@ -33,35 +54,41 @@ public class MotorSending : MonoBehaviour
 	public Image torqueImage;
 	public ChangeDegrees degreeApplicator;
 	
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-	    if(!isTCP) udpClient = new UdpClient();
-	    if(degreeApplicator == null)
-	    {
-	    	degreeApplicator = FindObjectOfType<ChangeDegrees>();
-	    }
-    }
+	private readonly Queue<string> _messages = new Queue<string>();
+	private readonly object _queueLock = new object();
+	private Thread _readThread;
+	
+	private ControlUDPPacket udpPacket = new ControlUDPPacket();
+	private IPEndPoint ep;
+	
+	private byte[] _udpSendBuffer;
+	
+	// Start is called once before the first execution of Update after the MonoBehaviour is created
+	void Start()
+	{
+		if(!isTCP) udpClient = new UdpClient();
+		if(degreeApplicator == null)
+		{
+			degreeApplicator = FindObjectOfType<ChangeDegrees>();
+		}
+		SetPacketZero();
+		udpPacket.motor_id = 2;
+		
+		_udpSendBuffer = new byte[Marshal.SizeOf(typeof(ControlUDPPacket))];
+	}
+	
+	public void SetPacketZero()
+	{
+		udpPacket.speed = 0f;
+		udpPacket.san = 0f;
+		udpPacket.prot = 0f;
+	}
 
 	public void OpenKeyBoard()
 	{
 		keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default);
 	}
-	//public void CloseKeyBoard()
-	//{
-	//	keyboard
-	//}
 	
-    // Update is called once per frame
-	void Update()
-    {
-	    //if(keyboard != null)
-	    //{
-	    //	ipField.text = keyboard.text;
-	    	
-	    //}
-    
-    }
     
 	public void SetDiscoveredIp(string ip)
 	{
@@ -104,7 +131,9 @@ public class MotorSending : MonoBehaviour
 			if (motorStatus.status == "accepted")
 			{
 				isConnected = true;
-				
+				_udpControlClient.Connect(ip, UDP_PORT);
+				ep = new IPEndPoint(IPAddress.Parse(ip), UDP_PORT);
+				StartCoroutine(SendUdpCourutine());
 				if(velMan1 != null)
 				{
 					velMan1.SetVelocityCome(motorStatus.motor1velocity);
@@ -128,21 +157,13 @@ public class MotorSending : MonoBehaviour
 				degreeApplicator.SetValueText();
 				isConnected = true;
 				
+				_readThread = new Thread(ReadLoop);
+				_readThread.IsBackground = true;
+				_readThread.Start();
+				
 			}
 			
-			//string expeted = "accepted\nvelocity:";
-			//if(tempResponce.StartsWith(expeted))
-			//{
-			//	isConnected = true;
-			//	string velocityString = tempResponce.Substring(expeted.Length).Trim();
-			//	if(float.TryParse(velocityString, out float velocityCome))
-			//	{
-			//		velMan.SetVelocityCome(velocityCome);
-			//	}
-			//}
 			responce.text = tempResponce;
-			
-			
 			
 		}catch (System.Exception e)
 		{
@@ -151,6 +172,53 @@ public class MotorSending : MonoBehaviour
 		yield return null;
 	}
 	
+	private void ReadLoop()
+	{
+		byte[] buffer = new byte[1024];
+		while(isConnected)
+		{
+			int n = stream.Read(buffer, 0, buffer.Length);
+			if(n <= 0) break;
+			string msg = Encoding.ASCII.GetString(buffer, 0, n).Trim();
+			lock(_queueLock)
+				_messages.Enqueue(msg);
+		}
+	}
+
+	void Update()
+	{
+		lock(_queueLock)
+		{
+			while(_messages.Count > 0)
+			{	
+				string msg = _messages.Dequeue();
+				if(msg.Equals("on") || msg.Equals("on\n"))
+				{
+					isTorqueOn = true;
+					torqueImage.color = Color.green;
+					torqueText.text = "Torqued on";
+				}
+				else if(msg.Equals("off") || msg.Equals("off\n"))
+				{
+					isTorqueOn = false;
+					torqueImage.color = Color.red;
+					torqueText.text = "Torqued off";
+				}
+			}
+		}
+		
+		
+	}
+	
+	public IEnumerator SendUdpCourutine()
+	{
+		while(true)
+		{
+			SendValuesUDP();
+			yield return new WaitForSecondsRealtime(0.02f);
+		}
+		
+	}
     
 	public string TakeSecret()
 	{
@@ -167,24 +235,37 @@ public class MotorSending : MonoBehaviour
 	public void SendValues(float value, string what, int motorId)
 	{
 		if(isTCP) SendValuesTCP(value, what, motorId);
-		else SendValuesUDP(value, what, motorId);
+		//else SendValuesUDP(value, what, motorId);
 	}
     
-	private void SendValuesUDP(float value, string what, int motorId)
+	private void SendValuesUDP()
 	{
-		string msg = "motor:" + motorId +what + ":" + value.ToString("F2") + "\n";
-		byte[] data = Encoding.ASCII.GetBytes(msg);
-		string ip = "";
-		if(ipField.text == "") 
+		if (!isConnected)
 		{
-			ip = staticIP;
+			return;
 		}
-		else ip = ipField.text;
-		
-		udpClient.Send(data, data.Length, ip, 5000); 
-		//Debug.LogError("nextData is Send: " + msg + " To IP: " + ip);
+    
+		IntPtr ptr = Marshal.AllocHGlobal(_udpSendBuffer.Length);
+		Marshal.StructureToPtr(udpPacket, ptr, true);
+		Marshal.Copy(ptr, _udpSendBuffer, 0, _udpSendBuffer.Length);
+		Marshal.FreeHGlobal(ptr);
+		_udpControlClient.Send(_udpSendBuffer, _udpSendBuffer.Length);
 		
 	}
+	//private void SendValuesUDP(float value, string what, int motorId)
+	//{
+	//	string msg = "motor:" + motorId +what + ":" + value.ToString("F2") + "\n";
+	//	byte[] data = Encoding.ASCII.GetBytes(msg);
+	//	string ip = "";
+	//	if(ipField.text == "") 
+	//	{
+	//		ip = staticIP;
+	//	}
+	//	else ip = ipField.text;
+		
+	//	udpClient.Send(data, data.Length, ip, 5000); 
+	//}
+
 	private void SendValuesTCP(float value, string what, int motorId)
 	{
 		if(!isConnected)
@@ -229,21 +310,7 @@ public class MotorSending : MonoBehaviour
 		{
 			SendValues(0, "torque");
 		}
-		byte[] buffer = new byte[256];
-		int byteRead = stream.Read(buffer,0,buffer.Length);
-		string torqueStatus = Encoding.ASCII.GetString(buffer, 0, byteRead);
-		if(torqueStatus.Equals("on\n"))
-		{
-			isTorqueOn = true;
-			torqueImage.color = Color.green;
-			torqueText.text = "Torqued on";
-		}
-		else if(torqueStatus.Equals("off\n"))
-		{
-			isTorqueOn = false;
-			torqueImage.color = Color.blue;
-			torqueText.text = "Torqued off";
-		}
+		// reply now comes via ReadLoop → Update(), no blocking read here
 	}
 	
 	public void ESTOP()
@@ -252,11 +319,68 @@ public class MotorSending : MonoBehaviour
 		byte[] data = Encoding.ASCII.GetBytes(msg);
 		stream.Write(data, 0, data.Length);
 	}
+
+	// ── UDP real-time commands ─────────────────────────────────────────────────
+
+	private void SendUDP(string msg)
+	{
+		if(!isConnected) return;
+		byte[] data = Encoding.ASCII.GetBytes(msg);
+		_udpControlClient.Send(data, data.Length);
+	}
+
+	public void SendSpeed(float speed, int motorId)
+	{
+		SendUDP("motor:" + motorId + "speed:" + speed.ToString("F2") + "\n");
+	}
+
+	public void SendSan(float san, int motorId)
+	{
+		SendUDP("motor:" + motorId + "san:" + san.ToString("F2") + "\n");
+	}
+
+	public void SendProt(float prot, int motorId)
+	{
+		SendUDP("motor:" + motorId + "prot:" + prot.ToString("F2") + "\n");
+	}
+
+	public void SendWbr(float wbr, int motorId)
+	{
+		SendUDP("motor:" + motorId + "wbr:" + wbr.ToString("F2") + "\n");
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+
+	public void SetPacketSpeed(float speed)
+	{
+		udpPacket.speed = speed;
+	}
+	public void SetPacketSan(float san)
+	{
+		udpPacket.san = san;
+	}
+	public void SetPacketProt(float prot)
+	{
+		udpPacket.prot = prot;
+	}
+	
+	public void DisconnectMotors()
+	{
+		isConnected = false;        // stops SendValuesUDP guard + ReadLoop
+		StopAllCoroutines();        // stops SendUdpCoroutine
+		udpClient?.Close();
+		_udpControlClient = new UdpClient(); // reset for reconnect
+		tcpClient?.Close();
+		stream?.Close();
+		stream = null;
+		tcpClient = null;
+	}
 	
 	// Sent to all game objects before the application is quit.
 	protected void OnApplicationQuit()
 	{
 		udpClient?.Close();
+		_udpControlClient?.Close();
 		tcpClient?.Close();
 		stream?.Close();
 	}
