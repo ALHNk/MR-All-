@@ -207,4 +207,14 @@ public class MoveMotor : MonoBehaviour
 		transform.rotation = Quaternion.Euler(0, positionNow, 0);
 		
 	}
+	protected void ReleaseHands()
+	{
+		if(grabInt.SelectingInteractors.Count > 0)
+		{
+			foreach(var interactor in grabInt.SelectingInteractors)
+			{
+				interactor.Unselect();
+			}
+		}
+	}
 }

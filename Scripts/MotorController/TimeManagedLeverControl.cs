@@ -46,6 +46,14 @@ public class TimeManagedLeverControl : MonoBehaviour
 	// Update is called every frame, if the MonoBehaviour is enabled.
 	protected void Update()
 	{
+		//if(!isStopped)
+		//{
+		//	if(grabInt.State == InteractableState.Normal)
+		//	{
+		//		allowenceMaterial.color = new Color(1f, 0f, 0f);
+		//		isStopped = true;
+		//	}
+		//}
 		float currentAngle = lever.eulerAngles.z;
 		if(currentAngle >180f) currentAngle -= 360f;
 		if((grabInt.State == InteractableState.Normal) && ( currentAngle < (8.0f/coef) && currentAngle >(-8.0f/coef)))
@@ -61,11 +69,13 @@ public class TimeManagedLeverControl : MonoBehaviour
 				sender.SetPacketSpeed(0f);
 				isStopped = true;
 				isLeverMoving = false;
+				allowenceMaterial.color = new Color(1f, 0f, 0f);
 			}
 		}
 		else{
 			isStopped = false;
 		}
+		canRotate();
 	}
 	
 	protected void OnTriggerStay(Collider other)
@@ -79,7 +89,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 			if(other.CompareTag("FingerLeft2")) fingerLeft2 = true;
 			if(other.CompareTag("FingerLeft3")) fingerLeft3 = true;
 			
-			canRotate();
+			//canRotate();
 			//RotateByHand(true);
 		}
 		
@@ -89,12 +99,15 @@ public class TimeManagedLeverControl : MonoBehaviour
 	private void canRotate()
 	{
 		
-		if((!fingerRight1 || !fingerRight2 || !fingerRight3) && (!fingerLeft1 || !fingerLeft2 || !fingerLeft3))
+		//if((!fingerRight1 || !fingerRight2 || !fingerRight3) && (!fingerLeft1 || !fingerLeft2 || !fingerLeft3))
+		//{
+		//	isFirst = true;
+		//	return;
+		//}
+		if(grabInt.State != InteractableState.Select)
 		{
-			isFirst = true;
 			return;
 		}
-		
 		if(isFirst)
 		{
 			allowenceMaterial.color = new Color(0f, 1f, 0f);
@@ -142,6 +155,7 @@ public class TimeManagedLeverControl : MonoBehaviour
 		if (smoothedHandSpeed > maxAllowedHandSpeed)
 		{
 			previousHandPos = currentHandPos;
+			ReleaseHands();
 			return;
 		}
 		
@@ -188,6 +202,16 @@ public class TimeManagedLeverControl : MonoBehaviour
 		fingerLeft1 = false;
 		fingerLeft2 = false;
 		fingerLeft3 = false;
-		allowenceMaterial.color = new Color(1f, 0f, 0f);
+		//allowenceMaterial.color = new Color(1f, 0f, 0f);
+	}
+	protected void ReleaseHands()
+	{
+		if(grabInt.SelectingInteractors.Count > 0)
+		{
+			foreach(var interactor in grabInt.SelectingInteractors)
+			{
+				interactor.Unselect();
+			}
+		}
 	}
 }
