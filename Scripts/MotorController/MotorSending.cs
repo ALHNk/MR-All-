@@ -17,10 +17,7 @@ struct ControlUDPPacket
 	public float speed;
 	public float san;
 	public float prot;
-	public byte motor_id;	
-	public byte pad1;
-	public byte pad2;
-	public byte pad3;
+	public float wbr;
 }
 
 public class MotorSending : MonoBehaviour
@@ -72,7 +69,7 @@ public class MotorSending : MonoBehaviour
 			degreeApplicator = FindObjectOfType<ChangeDegrees>();
 		}
 		SetPacketZero();
-		udpPacket.motor_id = 2;
+
 		
 		_udpSendBuffer = new byte[Marshal.SizeOf(typeof(ControlUDPPacket))];
 	}
@@ -82,6 +79,7 @@ public class MotorSending : MonoBehaviour
 		udpPacket.speed = 0f;
 		udpPacket.san = 0f;
 		udpPacket.prot = 0f;
+		udpPacket.wbr = 0f;
 	}
 
 	public void OpenKeyBoard()
@@ -362,6 +360,10 @@ public class MotorSending : MonoBehaviour
 	public void SetPacketProt(float prot)
 	{
 		udpPacket.prot = prot;
+	}
+	public void SetPacketWbr(float wbr)
+	{
+		udpPacket.wbr = wbr;
 	}
 	
 	public void DisconnectMotors()
